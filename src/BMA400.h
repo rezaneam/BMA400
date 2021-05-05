@@ -2,6 +2,13 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+#define BMA400_REG_CHIP_ID 0x00
+
+#define BMA400_ADDRESS_PRIMARY 0x14
+#define BMA400_ADDRESS_SECONDARY 0x15
+
+#define BMA400_CHIP_ID 0x90
+
 class BMA400
 {
 public:
