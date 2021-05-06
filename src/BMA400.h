@@ -15,10 +15,11 @@
 #define BMA400_REG_ACC_CONFIG_0 0x19
 #define BMA400_REG_ACC_CONFIG_1 0x1A
 #define BMA400_REG_ACC_CONFIG_2 0x1B
-
+#define BMA400_REG_INT_CONFIG_0 0x1F
 #define BMA400_REG_AUTO_LOW_POW_0 0x2A
 #define BMA400_REG_AUTO_LOW_POW_1 0x2B
-
+#define BMA400_REG_GEN_INT_1_CONFIG 0x3F
+#define BMA400_REG_GEN_INT_2_CONFIG 0x4A
 #define BMA400_ADDRESS_PRIMARY 0x14
 #define BMA400_ADDRESS_SECONDARY 0x15
 
@@ -29,7 +30,7 @@ class BMA400
 public:
     typedef enum
     {
-        UNKNOWN_MODE,                       // Something most be wrong
+        UNKNOWN_MODE,                  // Something most be wrong
         SLEEP,                         // 0.2uA
         LOWEST_POWER_WITH_NOISE,       // 0.85uA
         ULTRA_LOW_POWER,               // 0.93 uA
@@ -43,7 +44,7 @@ public:
 
     typedef enum
     {
-        UNKNOWN_TIMEOUT,              // Something most be wrong
+        UNKNOWN_TIMEOUT,      // Something most be wrong
         DISABLE,              // Auto Low power timeout is disabled
         ON_TIMEOUT,           // Auto Low power timeout is reached
         ON_TIMEOUT_RST_G_INT2 // Auto Low Power ontime and also resets generic interrupt 2 asserted
@@ -79,6 +80,40 @@ public:
         RANGE_16G
     } acceleation_range_t;
 
+    typedef enum
+    {
+        ADV_GENERIC_INTERRUPT_1, // Generic Interrupt for (in)activity detection
+        ADV_GENERIC_INTERRUPT_2, //  Generic Interrupt for (in)activity detection
+    } interrupt_source_t;
+
+    typedef enum
+    {
+        AMP_0mg,
+        AMP_24mg,
+        AMP_48mg,
+        AMP_96mg
+    } generic_interrupt_hysteresis_amplitude_t;
+
+    typedef enum
+    {
+        ACTIVITY_DETECTION,
+        INACTIVITY_DETECTION,
+    } generic_interrupt_mode_t;
+
+    typedef enum
+    {
+        ACC_FILT_1,
+        ACC_FILT_2,
+    } generic_interrupt_data_source_t;
+
+    typedef enum
+    {
+        MANUAL_UPDATE,
+        ONETIME_UPDATE,
+        EVERYTIME_UPDATE_FROM_ACC_FILTx,
+        EVERYTIME_UPDATE_FROM_ACC_FILT_LP,
+    } generic_interrupt_reference_update_t;
+
     bool Initialize(TwoWire &_wire = Wire);
     bool Initialize(uint8_t _address, TwoWire &_wire = Wire);
     power_mode_t GetPowerMode();
@@ -103,7 +138,26 @@ public:
     void SetRange(acceleation_range_t range);
     acceleation_range_t GetRange();
 
-    //# MISC
+    //# Interrupts
+    void SetGenericInterrupt(
+        interrupt_source_t interrupt, bool enable,
+        generic_interrupt_reference_update_t reference,
+        generic_interrupt_mode_t mode,
+        uint8_t threshold, uint16_t duration,
+        generic_interrupt_hysteresis_amplitude_t hystersis,
+        generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+        bool enableX = true, bool enableY = true, bool enableZ = true,
+        bool all_combined = false, bool ignoreSamplingRateFix = false);
+
+    void SetGenericInterrupt(
+        interrupt_source_t interrupt, bool enable,
+        generic_interrupt_reference_update_t reference,
+        generic_interrupt_mode_t mode,
+        float threshold, float duration,
+        generic_interrupt_hysteresis_amplitude_t hystersis,
+        generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+        bool enableX = true, bool enableY = true, bool enableZ = true,
+        bool all_combined = false, bool ignoreSamplingRateFix = false);
 
 private:
     uint8_t address;

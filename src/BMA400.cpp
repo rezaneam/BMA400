@@ -477,6 +477,287 @@ BMA400::acceleation_range_t BMA400::GetRange()
     return acceleation_range_t::UNKNOWN_RANGE;
 }
 
+void BMA400::SetGenericInterrupt(
+    interrupt_source_t interrupt, bool enable,
+    generic_interrupt_reference_update_t reference,
+    generic_interrupt_mode_t mode,
+    uint8_t threshold,
+    uint16_t duration,
+    generic_interrupt_hysteresis_amplitude_t hystersis,
+    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+    bool enableX = true, bool enableY = true, bool enableZ = true,
+    bool all_combined = false, bool ignoreSamplingRateFix = false)
+{
+    if (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1 &
+        interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2) //# ignore if not a generic interrupt
+        return;
+    if (!enable) //# just disable the interrupt
+    {
+        unset(BMA400_REG_INT_CONFIG_0, interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? 2 : 3);
+        return;
+    }
+
+    uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
+    uint8_t val = 0;
+
+    //# increasing the rate to be at least 100Hz
+    if (!ignoreSamplingRateFix)
+    {
+        output_data_rate_t rate = GetDataRate();
+        if (rate == output_data_rate_t::Filter1_024x_12Hz |
+            rate == output_data_rate_t::Filter1_024x_25Hz |
+            rate == output_data_rate_t::Filter1_024x_50Hz)
+            SetDataRate(output_data_rate_t::Filter1_024x_100Hz);
+        else if (rate == output_data_rate_t::Filter1_048x_12Hz |
+                 rate == output_data_rate_t::Filter1_048x_25Hz |
+                 rate == output_data_rate_t::Filter1_048x_50Hz)
+            SetDataRate(output_data_rate_t::Filter1_048x_100Hz);
+    }
+
+    //# enabling interrupt
+    set(BMA400_REG_INT_CONFIG_0, interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? 2 : 3);
+
+    //# setting config 0 register
+    switch (hystersis)
+    {
+    case generic_interrupt_hysteresis_amplitude_t::AMP_0mg:
+        // Do nothing
+        break;
+
+    case generic_interrupt_hysteresis_amplitude_t::AMP_24mg:
+        val |= 0x01;
+        break;
+
+    case generic_interrupt_hysteresis_amplitude_t::AMP_48mg:
+        val |= 0x02;
+        break;
+
+    case generic_interrupt_hysteresis_amplitude_t::AMP_96mg:
+        val |= 0x03;
+        break;
+    }
+
+    switch (reference)
+    {
+    case generic_interrupt_reference_update_t::MANUAL_UPDATE:
+        // Do nothing
+        break;
+
+    case generic_interrupt_reference_update_t::ONETIME_UPDATE:
+        val |= 0x04;
+        break;
+
+    case generic_interrupt_reference_update_t::EVERYTIME_UPDATE_FROM_ACC_FILTx:
+        val |= 0x08;
+        break;
+
+    case generic_interrupt_reference_update_t::EVERYTIME_UPDATE_FROM_ACC_FILT_LP:
+        val |= 0x0C;
+        break;
+    }
+
+    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+        val |= 0x10;
+
+    if (enableX)
+        val |= 0x20;
+
+    if (enableY)
+        val |= 0x40;
+
+    if (enableZ)
+        val |= 0x80;
+
+    write(_register, val);
+
+    //# setting config 1 register
+    _register++;
+    val = 0;
+
+    if (all_combined)
+        val |= 0x01;
+
+    if (mode == generic_interrupt_mode_t::ACTIVITY_DETECTION)
+        val |= 0x02;
+
+    write(_register, val);
+
+    //# setting config 2 register
+    _register++;
+    write(_register, threshold);
+
+    //# setting config 3 register
+    _register++;
+    write(_register, (uint8_t)(duration >> 8));
+
+    //# setting config 4 register
+    _register++;
+    write(_register, (uint8_t)duration);
+}
+
+void BMA400::SetGenericInterrupt(
+    interrupt_source_t interrupt, bool enable,
+    generic_interrupt_reference_update_t reference,
+    generic_interrupt_mode_t mode,
+    float threshold,
+    float duration,
+    generic_interrupt_hysteresis_amplitude_t hystersis,
+    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+    bool enableX = true, bool enableY = true, bool enableZ = true,
+    bool all_combined = false, bool ignoreSamplingRateFix = false)
+{
+    if (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1 &
+        interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2) //# ignore if not a generic interrupt
+        return;
+    if (!enable) //# just disable the interrupt
+    {
+        unset(BMA400_REG_INT_CONFIG_0, interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? 2 : 3);
+        return;
+    }
+
+    uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
+    uint8_t val = 0;
+
+    //# increasing the rate to be at least 100Hz
+    if (!ignoreSamplingRateFix)
+    {
+        output_data_rate_t rate = GetDataRate();
+        if (rate == output_data_rate_t::Filter1_024x_12Hz |
+            rate == output_data_rate_t::Filter1_024x_25Hz |
+            rate == output_data_rate_t::Filter1_024x_50Hz)
+            SetDataRate(output_data_rate_t::Filter1_024x_100Hz);
+        else if (rate == output_data_rate_t::Filter1_048x_12Hz |
+                 rate == output_data_rate_t::Filter1_048x_25Hz |
+                 rate == output_data_rate_t::Filter1_048x_50Hz)
+            SetDataRate(output_data_rate_t::Filter1_048x_100Hz);
+    }
+
+    //# enabling interrupt
+    set(BMA400_REG_INT_CONFIG_0, interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? 2 : 3);
+
+    //# setting config 0 register
+    switch (hystersis)
+    {
+    case generic_interrupt_hysteresis_amplitude_t::AMP_0mg:
+        // Do nothing
+        break;
+
+    case generic_interrupt_hysteresis_amplitude_t::AMP_24mg:
+        val |= 0x01;
+        break;
+
+    case generic_interrupt_hysteresis_amplitude_t::AMP_48mg:
+        val |= 0x02;
+        break;
+
+    case generic_interrupt_hysteresis_amplitude_t::AMP_96mg:
+        val |= 0x03;
+        break;
+    }
+
+    switch (reference)
+    {
+    case generic_interrupt_reference_update_t::MANUAL_UPDATE:
+        // Do nothing
+        break;
+
+    case generic_interrupt_reference_update_t::ONETIME_UPDATE:
+        val |= 0x04;
+        break;
+
+    case generic_interrupt_reference_update_t::EVERYTIME_UPDATE_FROM_ACC_FILTx:
+        val |= 0x08;
+        break;
+
+    case generic_interrupt_reference_update_t::EVERYTIME_UPDATE_FROM_ACC_FILT_LP:
+        val |= 0x0C;
+        break;
+    }
+
+    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+        val |= 0x10;
+
+    if (enableX)
+        val |= 0x20;
+
+    if (enableY)
+        val |= 0x40;
+
+    if (enableZ)
+        val |= 0x80;
+
+    write(_register, val);
+
+    //# setting config 1 register
+    _register++;
+    val = 0;
+
+    if (all_combined)
+        val |= 0x01;
+
+    if (mode == generic_interrupt_mode_t::ACTIVITY_DETECTION)
+        val |= 0x02;
+
+    write(_register, val);
+
+    //# setting config 2 register
+    _register++;
+    threshold /= 8;
+    val = threshold > 255 ? 255 : (uint8_t)threshold;
+    write(_register, val);
+
+    //# setting config 3 register
+    _register++;
+
+    switch (GetDataRate())
+    {
+    case output_data_rate_t::Filter1_024x_12Hz:
+    case output_data_rate_t::Filter1_048x_12Hz:
+        duration *= 0.0125;
+        break;
+
+    case output_data_rate_t::Filter1_024x_25Hz:
+    case output_data_rate_t::Filter1_048x_25Hz:
+        duration *= 0.025;
+        break;
+
+    case output_data_rate_t::Filter1_024x_50Hz:
+    case output_data_rate_t::Filter1_048x_50Hz:
+        duration *= 0.05;
+        break;
+
+    case output_data_rate_t::Filter1_024x_100Hz:
+    case output_data_rate_t::Filter1_048x_100Hz:
+    case output_data_rate_t::Filter2_100Hz:
+    case output_data_rate_t::Filter2_100Hz_LPF_1Hz:
+        duration *= 0.1;
+        break;
+
+    case output_data_rate_t::Filter1_024x_200Hz:
+    case output_data_rate_t::Filter1_048x_200Hz:
+        duration *= 0.2;
+        break;
+
+    case output_data_rate_t::Filter1_024x_400Hz:
+    case output_data_rate_t::Filter1_048x_400Hz:
+        duration *= 0.4;
+        break;
+
+    case output_data_rate_t::Filter1_024x_800Hz:
+    case output_data_rate_t::Filter1_048x_800Hz:
+        duration *= 0.8;
+        break;
+    }
+    uint16_t dur = (uint16_t)round(duration);
+
+    write(_register, (uint8_t)(dur >> 8));
+
+    //# setting config 4 register
+    _register++;
+    write(_register, (uint8_t)dur);
+}
+
+//* Private methods
 void BMA400::read(uint8_t _register, uint8_t length, uint8_t *values)
 {
     wire->beginTransmission(address);
