@@ -52,23 +52,23 @@ public:
 
     typedef enum
     {
-        UNKNOWN_RATE,
-        Filter1_048x_800Hz,
-        Filter1_024x_800Hz,
-        Filter1_048x_400Hz,
-        Filter1_024x_400Hz,
-        Filter1_048x_200Hz,
-        Filter1_024x_200Hz,
-        Filter1_048x_100Hz,
-        Filter1_024x_100Hz,
-        Filter1_048x_50Hz,
-        Filter1_024x_50Hz,
-        Filter1_048x_25Hz,
-        Filter1_024x_25Hz,
-        Filter1_048x_12Hz,
-        Filter1_024x_12Hz,
-        Filter2_100Hz,
-        Filter2_100Hz_LPF_1Hz
+        UNKNOWN_RATE,         // Something most be wrong
+        Filter1_048x_800Hz,   // ODR 800Hz BW 384Hz
+        Filter1_024x_800Hz,   // ODR 800Hz BW 192Hz
+        Filter1_048x_400Hz,   // ODR 400Hz BW 192Hz
+        Filter1_024x_400Hz,   // ODR 400Hz BW 96Hz
+        Filter1_048x_200Hz,   // ODR 200Hz BW 96Hz
+        Filter1_024x_200Hz,   // ODR 200Hz BW 48Hz
+        Filter1_048x_100Hz,   // ODR 100Hz BW 48Hz
+        Filter1_024x_100Hz,   // ODR 100Hz BW 24Hz
+        Filter1_048x_50Hz,    // ODR 50Hz BW 24Hz
+        Filter1_024x_50Hz,    // ODR 50Hz BW 12Hz
+        Filter1_048x_25Hz,    // ODR 25Hz BW 12Hz
+        Filter1_024x_25Hz,    // ODR 25Hz BW 6Hz
+        Filter1_048x_12Hz,    // ODR 12.5Hz BW 6Hz
+        Filter1_024x_12Hz,    // ODR 12.5Hz BW 3Hz
+        Filter2_100Hz,        // Fixed ODR 100Hz
+        Filter2_100Hz_LPF_1Hz //Fixed ODR 100Hz filter by a low pass filter (BW=1Hz)
     } output_data_rate_t;
 
     typedef enum
@@ -88,30 +88,30 @@ public:
 
     typedef enum
     {
-        AMP_0mg,
-        AMP_24mg,
-        AMP_48mg,
-        AMP_96mg
+        AMP_0mg,  // 0 mg hysteresis amplitude
+        AMP_24mg, // 24 mg hysteresis amplitude
+        AMP_48mg, // 48 mg hysteresis amplitude
+        AMP_96mg  // 96 mg hysteresis amplitude
     } generic_interrupt_hysteresis_amplitude_t;
 
     typedef enum
     {
-        ACTIVITY_DETECTION,
-        INACTIVITY_DETECTION,
+        ACTIVITY_DETECTION,   // activity detection. referenced aceleration above threshold
+        INACTIVITY_DETECTION, // inactivity detection. referenced aceleration below threshold
     } generic_interrupt_mode_t;
 
     typedef enum
     {
-        ACC_FILT_1,
-        ACC_FILT_2,
+        ACC_FILT_1, // using accelerometer filter 1 as data source for the interrupt generator
+        ACC_FILT_2, // (recommended) using accelerometer filter 2 as data source for the interrupt generator
     } generic_interrupt_data_source_t;
 
     typedef enum
     {
-        MANUAL_UPDATE,
-        ONETIME_UPDATE,
-        EVERYTIME_UPDATE_FROM_ACC_FILTx,
-        EVERYTIME_UPDATE_FROM_ACC_FILT_LP,
+        MANUAL_UPDATE,                     // reference values are updated by the user manually
+        ONETIME_UPDATE,                    // reference values are updated automatically after triggering the interrupt
+        EVERYTIME_UPDATE_FROM_ACC_FILTx,   // reference values are updated automatically by the end of interrupt
+        EVERYTIME_UPDATE_FROM_ACC_FILT_LP, // reference values are updated automatically after triggering the interrupt from acc_filt_low pass (1Hz)
     } generic_interrupt_reference_update_t;
 
     bool Initialize(TwoWire &_wire = Wire);
@@ -158,6 +158,8 @@ public:
         generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
         bool enableX = true, bool enableY = true, bool enableZ = true,
         bool all_combined = false, bool ignoreSamplingRateFix = false);
+
+    void SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t *values);
 
 private:
     uint8_t address;

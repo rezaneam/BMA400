@@ -1,5 +1,10 @@
 #include <BMA400.h>
 
+/*!
+ *  @brief  Initializing the libary with auto address detect
+ *  @param  _wire TwoWire interface - defalt Wire
+ *  @return true if any BMA400 sensor found
+ */
 bool BMA400::Initialize(TwoWire &_wire)
 {
     wire = &_wire;
@@ -12,6 +17,12 @@ bool BMA400::Initialize(TwoWire &_wire)
     return (read(BMA400_REG_CHIP_ID) == BMA400_CHIP_ID);
 }
 
+/*!
+ *  @brief  Initializing the libary using sensor address
+ *  @param  _address sensor address
+ *  @param  _wire TwoWire interface - defalt Wire
+ *  @return true if sensor found
+ */
 bool BMA400::Initialize(uint8_t _address, TwoWire &_wire)
 {
     wire = &_wire;
@@ -477,6 +488,22 @@ BMA400::acceleation_range_t BMA400::GetRange()
     return acceleation_range_t::UNKNOWN_RANGE;
 }
 
+/*!
+ *  @brief  Configures Generic Interrupt 1 or 2
+ *  @param  interrupt target interrupt. it has to be either ADV_GENERIC_INTERRUPT_1 or ADV_GENERIC_INTERRUPT_2
+ *  @param  enable true if enables interrupt otherwise it disables the interrupt
+ *  @param  reference mode of updating reference acceleration. see generic_interrupt_reference_update_t
+ *  @param  mode Interrupt mode. On Activity or On Inactivity
+ *  @param  threshold threshold (raw value) LSB = 8mg
+ *  @param  duration minimum duration can generate interrupt - (raw value) depending on ODR
+ *  @param  hystersis hystersis amplitude. can be selected between 0, 24, 48, 96mg
+ *  @param  data_source data source is used to monitor the acceleration. Acc Filt 2 is recommended
+ *  @param  enableX enables interrupt on X Axis
+ *  @param  enableY enables interrupt on Y Axis
+ *  @param  enableZ enables interrupt on Z Axis
+ *  @param  all_combined if true uses AND logic applies on all axes to generate interrupts, otherwise OR logic
+ *  @param  ignoreSamplingRateFix if false automatically increases the ODR to 100Hz if it's lower
+ */
 void BMA400::SetGenericInterrupt(
     interrupt_source_t interrupt, bool enable,
     generic_interrupt_reference_update_t reference,
@@ -595,6 +622,22 @@ void BMA400::SetGenericInterrupt(
     write(_register, (uint8_t)duration);
 }
 
+/*!
+ *  @brief  Configures Generic Interrupt 1 or 2
+ *  @param  interrupt target interrupt. it has to be either ADV_GENERIC_INTERRUPT_1 or ADV_GENERIC_INTERRUPT_2
+ *  @param  enable true if enables interrupt otherwise it disables the interrupt
+ *  @param  reference mode of updating reference acceleration. see generic_interrupt_reference_update_t
+ *  @param  mode Interrupt mode. On Activity or On Inactivity
+ *  @param  threshold threshold - in mg
+ *  @param  duration minimum duration can generate interrupt - in mili seconds
+ *  @param  hystersis hystersis amplitude. can be selected between 0, 24, 48, 96mg
+ *  @param  data_source data source is used to monitor the acceleration. Acc Filt 2 is recommended
+ *  @param  enableX enables interrupt on X Axis
+ *  @param  enableY enables interrupt on Y Axis
+ *  @param  enableZ enables interrupt on Z Axis
+ *  @param  all_combined if true uses AND logic applies on all axes to generate interrupts, otherwise OR logic
+ *  @param  ignoreSamplingRateFix if false automatically increases the ODR to 100Hz if it's lower
+ */
 void BMA400::SetGenericInterrupt(
     interrupt_source_t interrupt, bool enable,
     generic_interrupt_reference_update_t reference,
@@ -755,6 +798,23 @@ void BMA400::SetGenericInterrupt(
     //# setting config 4 register
     _register++;
     write(_register, (uint8_t)dur);
+}
+
+/*!
+ *  @brief  Manually updating the reference acceleration
+ *  @param  interrupt target interrupt. it has to be either ADV_GENERIC_INTERRUPT_1 or ADV_GENERIC_INTERRUPT_2
+ *  @param  values raw values in order of [0]X(MSB) [1]X(LSB) [2]Y(MSB) [2]Y(LSB) [3]Z(MSB) [3]Z(LSB) 
+ */
+void BMA400::SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t *values)
+{
+    uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
+    _register += 5; //# pointing to config 4
+
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        write(_register, values[i]);
+        _register++;
+    }
 }
 
 //* Private methods
