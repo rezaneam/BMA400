@@ -30,6 +30,10 @@ bool BMA400::Initialize(uint8_t _address, TwoWire &_wire)
     return (read(BMA400_REG_CHIP_ID) == BMA400_CHIP_ID);
 }
 
+/*!
+ *  @brief  Getting current power mode (9 modes) includes Sleep/Low/Normal and 4 level of noise performance
+ *  @return power mode. see power_mode_t for more details
+ */
 BMA400::power_mode_t BMA400::GetPowerMode()
 {
 
@@ -78,6 +82,10 @@ BMA400::power_mode_t BMA400::GetPowerMode()
     return power_mode_t::UNKNOWN_MODE;
 }
 
+/*!
+ *  @brief  Updating the power mode 
+ *  @param  mode power mode see power_mode_t for more details
+ */
 void BMA400::SetPowerMode(const power_mode_t &mode)
 {
     uint8_t config = read(BMA400_REG_ACC_CONFIG_0);
@@ -145,6 +153,10 @@ void BMA400::SetPowerMode(const power_mode_t &mode)
     }
 }
 
+/*!
+ *  @brief  Getting Acceleration - unprocessed 
+ *  @param  values must be address of an array (uint16_t) with at least 3 elements 
+ */
 void BMA400::ReadAcceleration(uint16_t *values)
 {
     uint8_t data[6];
@@ -158,6 +170,10 @@ void BMA400::ReadAcceleration(uint16_t *values)
     }
 }
 
+/*!
+ *  @brief  Getting Acceleration - processed in mg
+ *  @param  values must be address of an array (float) with at least 3 elements 
+ */
 void BMA400::ReadAcceleation(float *values)
 {
     uint8_t data[6];
@@ -192,16 +208,28 @@ void BMA400::ReadAcceleation(float *values)
     }
 }
 
+/*!
+ *  @brief  Checking if Auto Low Power on Data Ready is enabled
+ *  @return true if Auto low power on Data Ready is enabled
+ */
 bool BMA400::GetAutoLowPowerOnDataReady()
 {
     return (read(BMA400_REG_AUTO_LOW_POW_1) & 0x01) == 1;
 }
 
+/*!
+ *  @brief  Checking if Auto Low Power on Generic Interrupt 1 is enabled
+ *  @return true if Auto low power on Generic Interrupt 1 is enabled
+ */
 bool BMA400::GetAutoLowPowerOnGenericInterrupt1()
 {
     return (read(BMA400_REG_AUTO_LOW_POW_1) & 0x02) == 2;
 }
 
+/*!
+ *  @brief  Checking if Auto Low Power on timeout mode
+ *  @return timeout mode. check auto_low_power_timeout_mode_t for more detail
+ */
 BMA400::auto_low_power_timeout_mode_t BMA400::GetAutoLowPowerOnTimeoutMode()
 {
     uint8_t val = read(BMA400_REG_AUTO_LOW_POW_1) & 0x0C;
@@ -222,6 +250,10 @@ BMA400::auto_low_power_timeout_mode_t BMA400::GetAutoLowPowerOnTimeoutMode()
     }
 }
 
+/*!
+ *  @brief  Getting Auto Low Power on Timeout threshold (time) in ms
+ *  @return threshold in ms scale
+ */
 float BMA400::GetAutoLowPowerOnTimeoutThreshold()
 {
     float threshold;
@@ -231,6 +263,10 @@ float BMA400::GetAutoLowPowerOnTimeoutThreshold()
     return threshold;
 }
 
+/*!
+ *  @brief  Updating Auto Low Power On Data Ready
+ *  @param  enable true will enable the auto low power
+ */
 void BMA400::SetAutoLowPowerOnDataReady(bool enable)
 {
     uint8_t val = read(BMA400_REG_AUTO_LOW_POW_1) & 0xFE;
@@ -239,6 +275,10 @@ void BMA400::SetAutoLowPowerOnDataReady(bool enable)
     write(BMA400_REG_AUTO_LOW_POW_1, val);
 }
 
+/*!
+ *  @brief  Updating Auto Low Power On Generic Interrupt 1
+ *  @param  enable true will enable the auto low power
+ */
 void BMA400::SetAutoLowPowerOnGenericInterrupt1(bool enable)
 {
     uint8_t val = read(BMA400_REG_AUTO_LOW_POW_1) & 0xFD;
@@ -247,6 +287,11 @@ void BMA400::SetAutoLowPowerOnGenericInterrupt1(bool enable)
     write(BMA400_REG_AUTO_LOW_POW_1, val);
 }
 
+/*!
+ *  @brief  Updating Auto Low Power On timeout
+ *  @param  mode timeout mode. check auto_low_power_timeout_mode_t for more detail
+ *  @param  timeout_threshold threshold in ms scale
+ */
 void BMA400::SetAutoLowPowerOnTimeout(auto_low_power_timeout_mode_t mode, float timeout_threshold)
 {
     uint8_t val = read(BMA400_REG_AUTO_LOW_POW_1) & 0x03;
@@ -273,6 +318,13 @@ void BMA400::SetAutoLowPowerOnTimeout(auto_low_power_timeout_mode_t mode, float 
     write(BMA400_REG_AUTO_LOW_POW_0, (uint8_t)(timeout_threshold / 16));
 }
 
+/*!
+ *  @brief  Updating Auto Low Power
+ *  @param  onDataReady enables Auto Low Power on Data Ready
+ *  @param  onGenericInterrupt1 enables Auto Low Power on Generic Interrupt 1
+ *  @param  mode timeout mode. check auto_low_power_timeout_mode_t for more detail
+ *  @param  timeout_threshold threshold in ms scale
+ */
 void BMA400::SetAutoLowPower(bool onDataReady, bool onGenericInterrupt1, auto_low_power_timeout_mode_t mode, float timeout_threshold)
 {
     uint8_t val = 0;
