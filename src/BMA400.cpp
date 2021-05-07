@@ -31,6 +31,20 @@ bool BMA400::Initialize(uint8_t _address, TwoWire &_wire)
 }
 
 /*!
+ *  @brief  Runs command
+ *  @param  cmd check command_t for more details
+ *  @return true if command is sent successfully
+ */
+bool BMA400::ExecuteCommand(command_t cmd)
+{
+    if ((read(BMA400_REG_STATUS) & 0x10) != 0x10)
+        return false;
+
+    write(BMA400_REG_COMMAND, cmd);
+    return true;
+}
+
+/*!
  *  @brief  Getting current power mode (9 modes) includes Sleep/Low/Normal and 4 level of noise performance
  *  @return power mode. see power_mode_t for more details
  */
@@ -867,6 +881,140 @@ void BMA400::SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t 
         write(_register, values[i]);
         _register++;
     }
+}
+
+void BMA400::SetStepDetectorCounter(bool enable)
+{
+    if (enable)
+        set(BMA400_REG_INT_CONFIG_1, 0);
+    else
+        unset(BMA400_REG_INT_CONFIG_1, 0);
+}
+
+uint32_t BMA400::GetTotalSteps()
+{
+    uint32_t value;
+    uint8_t values[3] = {0};
+    read(BMA400_REG_STEP_CNT0, 3, values);
+    value = values[0] + values[1] * 256 + values[2] * 256 * 256;
+    return value;
+}
+
+bool BMA400::ResetStepCounter()
+{
+    return ExecuteCommand(command_t::CMD_RESET_STEP_CNT);
+}
+
+void BMA400::SetActivityChangeInterrupt(bool enable,
+                                        uint8_t threshold,
+                                        activity_change_observation_number_t observation_number,
+                                        generic_interrupt_data_source_t data_source,
+                                        bool enableX, bool enableY, bool enableZ)
+{
+    if (!enable) //# Just disable the interrupt
+    {
+        unset(BMA400_REG_INT_CONFIG_1, 4);
+        return;
+    }
+
+    set(BMA400_REG_INT_CONFIG_1, 4);
+    write(BMA400_REG_ACT_CHNG_INT_CONFIG_0, threshold);
+
+    uint8_t val = 0;
+
+    switch (observation_number)
+    {
+    case activity_change_observation_number_t::OBSERVATION_32:
+        // Do nothing
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_64:
+        val |= 0x01;
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_128:
+        val |= 0x02;
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_256:
+        val |= 0x03;
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_512:
+        val |= 0x04;
+        break;
+    }
+
+    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+        val |= 0x10;
+
+    if (enableX)
+        val |= 0x20;
+
+    if (enableY)
+        val |= 0x40;
+
+    if (enableZ)
+        val |= 0x80;
+
+    write(BMA400_REG_ACT_CHNG_INT_CONFIG_1, val);
+}
+
+void BMA400::SetActivityChangeInterrupt(bool enable,
+                                        float threshold,
+                                        activity_change_observation_number_t observation_number,
+                                        generic_interrupt_data_source_t data_source,
+                                        bool enableX, bool enableY, bool enableZ)
+{
+    if (!enable) //# Just disable the interrupt
+    {
+        unset(BMA400_REG_INT_CONFIG_1, 4);
+        return;
+    }
+
+    set(BMA400_REG_INT_CONFIG_1, 4);
+    threshold /= 8.0;
+    threshold = round(threshold);
+    write(BMA400_REG_ACT_CHNG_INT_CONFIG_0, (uint8_t)threshold);
+
+    uint8_t val = 0;
+
+    switch (observation_number)
+    {
+    case activity_change_observation_number_t::OBSERVATION_32:
+        // Do nothing
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_64:
+        val |= 0x01;
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_128:
+        val |= 0x02;
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_256:
+        val |= 0x03;
+        break;
+
+    case activity_change_observation_number_t::OBSERVATION_512:
+        val |= 0x04;
+        break;
+    }
+
+    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+        val |= 0x10;
+
+    if (enableX)
+        val |= 0x20;
+
+    if (enableY)
+        val |= 0x40;
+
+    if (enableZ)
+        val |= 0x80;
+
+    write(BMA400_REG_ACT_CHNG_INT_CONFIG_1, val);
 }
 
 //* Private methods

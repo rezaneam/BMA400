@@ -11,15 +11,20 @@
 #define BMA400_REG_INT_STAT_1 0x0F
 #define BMA400_REG_INT_STAT_2 0x10
 #define BMA400_REG_TEMP_DATA 0x11
-
+#define BMA400_REG_STEP_CNT0 0x15
 #define BMA400_REG_ACC_CONFIG_0 0x19
 #define BMA400_REG_ACC_CONFIG_1 0x1A
 #define BMA400_REG_ACC_CONFIG_2 0x1B
 #define BMA400_REG_INT_CONFIG_0 0x1F
+#define BMA400_REG_INT_CONFIG_1 0x20
 #define BMA400_REG_AUTO_LOW_POW_0 0x2A
 #define BMA400_REG_AUTO_LOW_POW_1 0x2B
 #define BMA400_REG_GEN_INT_1_CONFIG 0x3F
 #define BMA400_REG_GEN_INT_2_CONFIG 0x4A
+#define BMA400_REG_ACT_CHNG_INT_CONFIG_0 0x55
+#define BMA400_REG_ACT_CHNG_INT_CONFIG_1 0x56
+#define BMA400_REG_COMMAND 0x7E
+
 #define BMA400_ADDRESS_PRIMARY 0x14
 #define BMA400_ADDRESS_SECONDARY 0x15
 
@@ -82,8 +87,10 @@ public:
 
     typedef enum
     {
-        ADV_GENERIC_INTERRUPT_1, // Generic Interrupt for (in)activity detection
-        ADV_GENERIC_INTERRUPT_2, //  Generic Interrupt for (in)activity detection
+        ADV_GENERIC_INTERRUPT_1,  // Generic Interrupt for (in)activity detection
+        ADV_GENERIC_INTERRUPT_2,  //  Generic Interrupt for (in)activity detection
+        ADV_SET_DETECTOR_COUNTER, // Step Detector interrupt / Step Counter
+        ADV_ACTIVITY_CHANGE,      // Activity Change interrupt
     } interrupt_source_t;
 
     typedef enum
@@ -93,6 +100,15 @@ public:
         AMP_48mg, // 48 mg hysteresis amplitude
         AMP_96mg  // 96 mg hysteresis amplitude
     } generic_interrupt_hysteresis_amplitude_t;
+
+    typedef enum
+    {
+        OBSERVATION_32,
+        OBSERVATION_64,
+        OBSERVATION_128,
+        OBSERVATION_256,
+        OBSERVATION_512
+    } activity_change_observation_number_t;
 
     typedef enum
     {
@@ -114,12 +130,21 @@ public:
         EVERYTIME_UPDATE_FROM_ACC_FILT_LP, // reference values are updated automatically after triggering the interrupt from acc_filt_low pass (1Hz)
     } generic_interrupt_reference_update_t;
 
+    typedef enum
+    {
+        CMD_FIFO_FLUSH = 0xB0,     // Clears all data in FIFO
+        CMD_RESET_STEP_CNT = 0xB1, // Resets the step counter to 0
+        CMD_SOFT_RESET = 0xB6      // Resets the chip and overwrites all user configurations
+
+    } command_t;
+
     bool Initialize(TwoWire &_wire = Wire);
     bool Initialize(uint8_t _address, TwoWire &_wire = Wire);
     power_mode_t GetPowerMode();
     void SetPowerMode(const power_mode_t &mode);
     void ReadAcceleration(uint16_t *values);
     void ReadAcceleation(float *values);
+    bool ExecuteCommand(command_t cmd);
 
     //# Auto Low Power Configuration
     bool GetAutoLowPowerOnDataReady();
@@ -139,7 +164,7 @@ public:
     acceleation_range_t GetRange();
 
     //# Interrupts
-    void SetGenericInterrupt(
+    void SetGenericInterrupt( //TODO: Support for Interrupt Pin Map
         interrupt_source_t interrupt, bool enable,
         generic_interrupt_reference_update_t reference,
         generic_interrupt_mode_t mode,
@@ -149,7 +174,7 @@ public:
         bool enableX = true, bool enableY = true, bool enableZ = true,
         bool all_combined = false, bool ignoreSamplingRateFix = false);
 
-    void SetGenericInterrupt(
+    void SetGenericInterrupt( //TODO: Support for Interrupt Pin Map
         interrupt_source_t interrupt, bool enable,
         generic_interrupt_reference_update_t reference,
         generic_interrupt_mode_t mode,
@@ -160,6 +185,22 @@ public:
         bool all_combined = false, bool ignoreSamplingRateFix = false);
 
     void SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t *values);
+
+    void SetStepDetectorCounter(bool enable); //TODO: Support for Interrupt Pin Map + Sensor Position
+    uint32_t GetTotalSteps();
+    bool ResetStepCounter();
+
+    void SetActivityChangeInterrupt(bool enable,
+                                    uint8_t threshold,
+                                    activity_change_observation_number_t observation_number,
+                                    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+                                    bool enableX = true, bool enableY = true, bool enableZ = true); //TODO: Support for Interrupt Pin Map
+
+    void SetActivityChangeInterrupt(bool enable,
+                                    float threshold,
+                                    activity_change_observation_number_t observation_number,
+                                    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+                                    bool enableX = true, bool enableY = true, bool enableZ = true); //TODO: Support for Interrupt Pin Map
 
 private:
     uint8_t address;
