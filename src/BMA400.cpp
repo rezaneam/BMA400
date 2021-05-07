@@ -372,6 +372,10 @@ void BMA400::SetAutoLowPower(bool onDataReady, bool onGenericInterrupt1, auto_lo
     write(BMA400_REG_AUTO_LOW_POW_0, (uint8_t)(timeout_threshold / 16));
 }
 
+/*!
+ *  @brief  Updating the data rate
+ *  @param  rate data rate select one between 16 rates. see output_data_rate_t for more details
+ */
 void BMA400::SetDataRate(output_data_rate_t rate)
 {
     uint8_t val;
@@ -474,6 +478,10 @@ void BMA400::SetDataRate(output_data_rate_t rate)
     }
 }
 
+/*!
+ *  @brief  Getting the data rate
+ *  @return  data rate (16 rates). see output_data_rate_t for more details
+ */
 BMA400::output_data_rate_t BMA400::GetDataRate()
 {
     uint8_t val = read(BMA400_REG_ACC_CONFIG_2);
@@ -512,6 +520,10 @@ BMA400::output_data_rate_t BMA400::GetDataRate()
     output_data_rate_t::UNKNOWN_RATE;
 }
 
+/*!
+ *  @brief  Updating the sampling range
+ *  @param  range sampling range 2, 4, 8, 16G. Use acceleation_range_t data type
+ */
 void BMA400::SetRange(acceleation_range_t range)
 {
     switch (range)
@@ -534,6 +546,10 @@ void BMA400::SetRange(acceleation_range_t range)
     }
 }
 
+/*!
+ *  @brief  Getting the sampling range
+ *  @return sampling range 2, 4, 8, 16G acceleation_range_t data type
+ */
 BMA400::acceleation_range_t BMA400::GetRange()
 {
     switch (read(BMA400_REG_ACC_CONFIG_1) & 0xC0)
@@ -883,6 +899,10 @@ void BMA400::SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t 
     }
 }
 
+/*!
+ *  @brief  Enabling/Disabling the step detector interrupt and step counter
+ *  @param  enable true to enable the interrupt (counter)
+ */
 void BMA400::SetStepDetectorCounter(bool enable)
 {
     if (enable)
@@ -891,6 +911,10 @@ void BMA400::SetStepDetectorCounter(bool enable)
         unset(BMA400_REG_INT_CONFIG_1, 0);
 }
 
+/*!
+ *  @brief  Getting the total steps counted so far. 
+ *  @return total steps counted
+ */
 uint32_t BMA400::GetTotalSteps()
 {
     uint32_t value;
@@ -900,11 +924,25 @@ uint32_t BMA400::GetTotalSteps()
     return value;
 }
 
+/*!
+ *  @brief  Reseting the total steps counted so far. 
+ *  @return true if reset step counter is successfully sent
+ */
 bool BMA400::ResetStepCounter()
 {
     return ExecuteCommand(command_t::CMD_RESET_STEP_CNT);
 }
 
+/*!
+ *  @brief  Configures Activity change Interrupt
+ *  @param  threshold threshold - raw value
+ *  @param  enable true if enables interrupt otherwise it disables the interrupt
+ *  @param  observation_number number of observations generates the interrupt
+ *  @param  data_source data source is used to monitor the acceleration. Acc Filt 2 is recommended
+ *  @param  enableX enables interrupt on X Axis
+ *  @param  enableY enables interrupt on Y Axis
+ *  @param  enableZ enables interrupt on Z Axis
+ */
 void BMA400::SetActivityChangeInterrupt(bool enable,
                                         uint8_t threshold,
                                         activity_change_observation_number_t observation_number,
@@ -960,6 +998,16 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
     write(BMA400_REG_ACT_CHNG_INT_CONFIG_1, val);
 }
 
+/*!
+ *  @brief  Configures Activity change Interrupt
+ *  @param  threshold threshold - in mg
+ *  @param  enable true if enables interrupt otherwise it disables the interrupt
+ *  @param  observation_number number of observations generates the interrupt
+ *  @param  data_source data source is used to monitor the acceleration. Acc Filt 2 is recommended
+ *  @param  enableX enables interrupt on X Axis
+ *  @param  enableY enables interrupt on Y Axis
+ *  @param  enableZ enables interrupt on Z Axis
+ */
 void BMA400::SetActivityChangeInterrupt(bool enable,
                                         float threshold,
                                         activity_change_observation_number_t observation_number,
