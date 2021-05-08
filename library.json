@@ -1,0 +1,20 @@
+{
+  "name": "BMA400",
+  "version": "1.0.0",
+  "keywords": "Arduino, BMA400, Accelerometer, Tilt sensor, Acceleration, Step Counter, Step Detection, Motion detection",
+  "description": "Comprehesive library for Bosch BMA400",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rezaneam/BMA400"
+  },
+  "authors": [
+    {
+      "name": "MReza Naeemabadi",
+      "email": "mr.naeemabadi@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "rp2040, espressif8266, espressif32, ststm32"
+}
