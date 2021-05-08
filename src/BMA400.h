@@ -21,7 +21,8 @@
 #define BMA400_REG_AUTO_LOW_POW_1 0x2B
 #define BMA400_REG_ORIENT_CONFIG_0 0x35
 #define BMA400_REG_ORIENT_CONFIG_1 0x36
-#define BMA400_REG_ORIENT_CONFIG_2 0x38
+#define BMA400_REG_ORIENT_CONFIG_3 0x38
+#define BMA400_REG_ORIENT_CONFIG_4 0x38
 #define BMA400_REG_GEN_INT_1_CONFIG 0x3F
 #define BMA400_REG_GEN_INT_2_CONFIG 0x4A
 #define BMA400_REG_ACT_CHNG_INT_CONFIG_0 0x55
@@ -250,6 +251,7 @@ public:
         bool all_combined = false, bool ignoreSamplingRateFix = false);
 
     void SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t *values);
+    void SetGenericInterruptReference(interrupt_source_t interrupt);
 
     void SetStepDetectorCounter(bool enable); //TODO: Support for Interrupt Pin Map + Sensor Position
     uint32_t GetTotalSteps();
@@ -290,6 +292,9 @@ public:
         orientation_reference_update_data_source_t reference_update_mode,
         float_t threshold,
         float duration);
+
+    void SetOrientationReference(uint8_t *values);
+    void SetOrientationReference();
 
 private:
     uint8_t address;

@@ -13,4 +13,9 @@
 - Getting/Setting Auto Low Power configurations
 - Getting/Setting Output Data rate (16 rates)
 - Getting/Setting Range
-- Setting Generic Interrupts
+- Configuring Generic Interrupts
+- Configuring Activity Change Interrupt
+- Configuring Step detection Interrupt (as well as step counter)
+- Configuring Single & Double tap detection Interrupt
+- Configuring Orientention change Interrupt
+- Setting Reference vector(acceleration) for Generic & Oreintation Changed Interrupts usig current/given values

@@ -516,7 +516,7 @@ BMA400::output_data_rate_t BMA400::GetDataRate()
         return is24x ? output_data_rate_t::Filter1_024x_25Hz : output_data_rate_t::Filter1_048x_25Hz;
     }
 
-    output_data_rate_t::UNKNOWN_RATE;
+    return output_data_rate_t::UNKNOWN_RATE;
 }
 
 /*!
@@ -899,6 +899,24 @@ void BMA400::SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t 
 }
 
 /*!
+ *  @brief  Use current acceleration values to Manually updating the reference acceleration
+ *  @param  interrupt target interrupt. it has to be either ADV_GENERIC_INTERRUPT_1 or ADV_GENERIC_INTERRUPT_2
+ */
+void BMA400::SetGenericInterruptReference(interrupt_source_t interrupt)
+{
+    uint8_t data[6] = {0};
+    read(BMA400_REG_ACC_DATA, 6, data);
+    uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
+    _register += 5; //# pointing to config 4
+
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        write(_register, data[i]);
+        _register++;
+    }
+}
+
+/*!
  *  @brief  Enabling/Disabling the step detector interrupt and step counter
  *  @param  enable true to enable the interrupt (counter)
  */
@@ -1179,6 +1197,19 @@ void BMA400::SetTapInterrupt(
     write(BMA400_REG_TAP_CONFIG_1, val);
 }
 
+/*!
+ *  @brief  Configures Orientation Changed Interrupt
+ *  @param  enable  set true to enable the interrupt
+ *  @param  enableX enables interrupt on X Axis
+ *  @param  enableY enables interrupt on Y Axis
+ *  @param  enableZ enables interrupt on Z Axis
+ *  @param  source  data source is used as input for the orientation change detection. 
+ * see orientation_reference_update_data_source_t for mode details
+ *  @param  reference_update_mode   mode of updating the orientation refernce vector (acceleration). 
+ * see orientation_reference_update_data_source_t for more details
+ *  @param  threshold   Threshold of orientation change will generate interrupt (raw value) - 1 LSB = 8 mg
+ *  @param  duration    Minimum duration of the new orientation will generate interrupt (raw value) - 1 LSB = 10ms
+ */
 void BMA400::SetOrientationChangeInterrupt(
     bool enable,
     bool enableX, bool enableY, bool enableZ,
@@ -1226,9 +1257,22 @@ void BMA400::SetOrientationChangeInterrupt(
 
     write(BMA400_REG_ORIENT_CONFIG_0, val);
     write(BMA400_REG_ORIENT_CONFIG_1, threshold);
-    write(BMA400_REG_ORIENT_CONFIG_2, duration);
+    write(BMA400_REG_ORIENT_CONFIG_3, duration);
 }
 
+/*!
+ *  @brief  Configures Orientation Changed Interrupt
+ *  @param  enable  set true to enable the interrupt
+ *  @param  enableX enables interrupt on X Axis
+ *  @param  enableY enables interrupt on Y Axis
+ *  @param  enableZ enables interrupt on Z Axis
+ *  @param  source  data source is used as input for the orientation change detection. 
+ * see orientation_reference_update_data_source_t for mode details
+ *  @param  reference_update_mode   mode of updating the orientation refernce vector (acceleration). 
+ * see orientation_reference_update_data_source_t for more details
+ *  @param  threshold   Threshold of orientation change will generate interrupt (in mg scale)
+ *  @param  duration    Minimum duration of the new orientation will generate interrupt (in ms scale)
+ */
 void BMA400::SetOrientationChangeInterrupt(
     bool enable,
     bool enableX, bool enableY, bool enableZ,
@@ -1282,7 +1326,37 @@ void BMA400::SetOrientationChangeInterrupt(
 
     duration /= 10;
     val = duration > 255 ? 255 : (uint8_t)duration;
-    write(BMA400_REG_ORIENT_CONFIG_2, val);
+    write(BMA400_REG_ORIENT_CONFIG_3, val);
+}
+
+/*!
+ *  @brief  Sets reference vector(acceleration) for Orientation Changed Interrupt
+ *  @param  values  Address of arrary 8bit values (length >= 6) includes the values as follows
+ * X(LSB) X(MSB) Y(LSB) Y(MSB) Z(LSB) Z(MSB) 
+ */
+void BMA400::SetOrientationReference(uint8_t *values)
+{
+    uint8_t _register = BMA400_REG_ORIENT_CONFIG_4;
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        write(_register, values[i]);
+        _register++;
+    }
+}
+
+/*!
+ *  @brief  Automatically Use current values to set reference vector(acceleration) for Orientation Changed Interrupt
+ */
+void BMA400::SetOrientationReference()
+{
+    uint8_t data[6] = {0};
+    read(BMA400_REG_ACC_DATA, 6, data);
+    uint8_t _register = BMA400_REG_ORIENT_CONFIG_4;
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        write(_register, data[i]);
+        _register++;
+    }
 }
 
 //* Private methods
