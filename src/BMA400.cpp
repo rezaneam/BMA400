@@ -569,6 +569,74 @@ BMA400::acceleation_range_t BMA400::GetRange()
     return acceleation_range_t::UNKNOWN_RANGE;
 }
 
+/*!
+ *  @brief  Getting all triggered interrupts
+ *  @return combination of all interrupts if there is more than one
+ */
+BMA400::interrupt_source_t BMA400::GetInterrupts()
+{
+    uint16_t result = 0;
+    uint8_t interrupts[3] = {0};
+    read(BMA400_REG_INT_STAT_0, 3, interrupts);
+
+    if (interrupts[0] & 0x01)
+        result |= interrupt_source_t::BAS_WAKEUP;
+
+    if (interrupts[0] & 0x02)
+        result |= interrupt_source_t::ADV_ORIENTATION_CHANGE;
+
+    if (interrupts[0] & 0x04)
+        result |= interrupt_source_t::ADV_GENERIC_INTERRUPT_1;
+
+    if (interrupts[0] & 0x08)
+        result |= interrupt_source_t::ADV_GENERIC_INTERRUPT_2;
+
+    if ((interrupts[0] & 0x10) | (interrupts[1] & 0x10) | interrupts[2] & 0x10)
+        result |= interrupt_source_t::BAS_ENGINE_OVERRUN;
+
+    if (interrupts[0] & 0x20)
+        result |= interrupt_source_t::BAS_FIFO_FULL;
+
+    if (interrupts[0] & 0x40)
+        result |= interrupt_source_t::BAS_FIFO_WATERMARK;
+
+    if (interrupts[0] & 0x80)
+        result |= interrupt_source_t::BAS_DATA_READY;
+
+    if (interrupts[1] & 0x01)
+        result |= interrupt_source_t::ADV_SET_DETECTOR_COUNTER;
+
+    if (interrupts[1] & 0x02)
+        result |= interrupt_source_t::ADV_SET_DETECTOR_COUNTER_DOUBLE_STEP;
+
+    if (interrupts[1] & 0x04)
+        result |= interrupt_source_t::ADV_SINGLE_TAP;
+
+    if (interrupts[1] & 0x08)
+        result |= interrupt_source_t::ADV_DOUBLE_TAP;
+
+    if (interrupts[2] & 0x01)
+        result |= interrupt_source_t::ADV_ORIENTATION_CHANGE_X;
+
+    if (interrupts[2] & 0x02)
+        result |= interrupt_source_t::ADV_ORIENTATION_CHANGE_Y;
+
+    if (interrupts[2] & 0x04)
+        result |= interrupt_source_t::ADV_ORIENTATION_CHANGE_Z;
+
+    return (interrupt_source_t)result;
+}
+
+/*!
+ *  @brief  Checks if an specific interrupt is rised after reading all interrupts blindly.
+ *  Not a good idea to use this method if you enabled multiple interrupts
+ *  @return true if the target interrupt is triggered
+ */
+bool BMA400::HasInterrupt(interrupt_source_t source)
+{
+    return (bool)(GetInterrupts() & source);
+}
+
 void BMA400::ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin)
 {
     switch (interrupt)
@@ -625,7 +693,7 @@ void BMA400::ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t
         }
         break;
 
-    case interrupt_source_t::BAS_FIFI_FULL:
+    case interrupt_source_t::BAS_FIFO_FULL:
         switch (pin)
         {
 

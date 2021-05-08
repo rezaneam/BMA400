@@ -19,3 +19,5 @@
 - Configuring Single & Double tap detection Interrupt
 - Configuring Orientention change Interrupt
 - Setting Reference vector(acceleration) for Generic & Oreintation Changed Interrupts usig current/given values
+- Mapping interrupts with the external interrupt pins
+- Reading the interrupt register
