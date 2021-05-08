@@ -191,7 +191,7 @@ void BMA400::ReadAcceleration(uint16_t *values)
 void BMA400::ReadAcceleation(float *values)
 {
     uint8_t data[6];
-    float divider;
+    float divider = 1;
     read(BMA400_REG_ACC_DATA, 6, data);
 
     switch (GetRange())
@@ -283,10 +283,10 @@ float BMA400::GetAutoLowPowerOnTimeoutThreshold()
  */
 void BMA400::SetAutoLowPowerOnDataReady(bool enable)
 {
-    uint8_t val = read(BMA400_REG_AUTO_LOW_POW_1) & 0xFE;
     if (enable)
-        val |= 0x01;
-    write(BMA400_REG_AUTO_LOW_POW_1, val);
+        set(BMA400_REG_AUTO_LOW_POW_1, 0);
+    else
+        unset(BMA400_REG_AUTO_LOW_POW_1, 0);
 }
 
 /*!
@@ -295,10 +295,10 @@ void BMA400::SetAutoLowPowerOnDataReady(bool enable)
  */
 void BMA400::SetAutoLowPowerOnGenericInterrupt1(bool enable)
 {
-    uint8_t val = read(BMA400_REG_AUTO_LOW_POW_1) & 0xFD;
     if (enable)
-        val |= 0x02;
-    write(BMA400_REG_AUTO_LOW_POW_1, val);
+        set(BMA400_REG_AUTO_LOW_POW_1, 1);
+    else
+        unset(BMA400_REG_AUTO_LOW_POW_1, 1);
 }
 
 /*!
@@ -378,7 +378,6 @@ void BMA400::SetAutoLowPower(bool onDataReady, bool onGenericInterrupt1, auto_lo
  */
 void BMA400::SetDataRate(output_data_rate_t rate)
 {
-    uint8_t val;
     switch (rate)
     {
     case output_data_rate_t::Filter1_048x_800Hz:
@@ -593,7 +592,7 @@ void BMA400::SetGenericInterrupt(
     uint8_t threshold,
     uint16_t duration,
     generic_interrupt_hysteresis_amplitude_t hystersis,
-    generic_interrupt_data_source_t data_source,
+    interrupt_data_source_t data_source,
     bool enableX, bool enableY, bool enableZ,
     bool all_combined, bool ignoreSamplingRateFix)
 {
@@ -665,7 +664,7 @@ void BMA400::SetGenericInterrupt(
         break;
     }
 
-    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+    if (data_source == interrupt_data_source_t::ACC_FILT_2)
         val |= 0x10;
 
     if (enableX)
@@ -727,7 +726,7 @@ void BMA400::SetGenericInterrupt(
     float threshold,
     float duration,
     generic_interrupt_hysteresis_amplitude_t hystersis,
-    generic_interrupt_data_source_t data_source,
+    interrupt_data_source_t data_source,
     bool enableX, bool enableY, bool enableZ,
     bool all_combined, bool ignoreSamplingRateFix)
 {
@@ -799,7 +798,7 @@ void BMA400::SetGenericInterrupt(
         break;
     }
 
-    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+    if (data_source == interrupt_data_source_t::ACC_FILT_2)
         val |= 0x10;
 
     if (enableX)
@@ -946,7 +945,7 @@ bool BMA400::ResetStepCounter()
 void BMA400::SetActivityChangeInterrupt(bool enable,
                                         uint8_t threshold,
                                         activity_change_observation_number_t observation_number,
-                                        generic_interrupt_data_source_t data_source,
+                                        interrupt_data_source_t data_source,
                                         bool enableX, bool enableY, bool enableZ)
 {
     if (!enable) //# Just disable the interrupt
@@ -983,7 +982,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
         break;
     }
 
-    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+    if (data_source == interrupt_data_source_t::ACC_FILT_2)
         val |= 0x10;
 
     if (enableX)
@@ -1011,7 +1010,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
 void BMA400::SetActivityChangeInterrupt(bool enable,
                                         float threshold,
                                         activity_change_observation_number_t observation_number,
-                                        generic_interrupt_data_source_t data_source,
+                                        interrupt_data_source_t data_source,
                                         bool enableX, bool enableY, bool enableZ)
 {
     if (!enable) //# Just disable the interrupt
@@ -1050,7 +1049,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
         break;
     }
 
-    if (data_source == generic_interrupt_data_source_t::ACC_FILT_2)
+    if (data_source == interrupt_data_source_t::ACC_FILT_2)
         val |= 0x10;
 
     if (enableX)
