@@ -19,6 +19,9 @@
 #define BMA400_REG_INT_CONFIG_1 0x20
 #define BMA400_REG_AUTO_LOW_POW_0 0x2A
 #define BMA400_REG_AUTO_LOW_POW_1 0x2B
+#define BMA400_REG_ORIENT_CONFIG_0 0x35
+#define BMA400_REG_ORIENT_CONFIG_1 0x36
+#define BMA400_REG_ORIENT_CONFIG_2 0x38
 #define BMA400_REG_GEN_INT_1_CONFIG 0x3F
 #define BMA400_REG_GEN_INT_2_CONFIG 0x4A
 #define BMA400_REG_ACT_CHNG_INT_CONFIG_0 0x55
@@ -123,6 +126,19 @@ public:
         ACC_FILT_1, // using accelerometer filter 1 as data source for the interrupt generator
         ACC_FILT_2, // (recommended) using accelerometer filter 2 as data source for the interrupt generator
     } interrupt_data_source_t;
+
+    typedef enum // data sources used for orientation change Interrupt
+    {
+        ORIENT_UPDATE_ACC_FILT_2_100HZ,        // using accelerometer filter 2
+        ORIENT_UPDATE_ACC_FILT_2_100HZ_LP_1HZ, // using accelerometer filter 2 Low pass filtered with 1Hz cut-off frequency
+    } orientation_change_data_source_t;
+
+    typedef enum // data sources used for orientation change Interrupt reference
+    {
+        ORIENT_UPDATE_MANUAL,                       // Reference values are updated manually by user
+        ORIENT_UPDATE_AUTO_ACC_FILT_2_100HZ,        // using accelerometer filter 2
+        ORIENT_UPDATE_AUTO_ACC_FILT_2_100HZ_LP_1HZ, // using accelerometer filter 2 Low pass filtered with 1Hz cut-off frequency
+    } orientation_reference_update_data_source_t;
 
     typedef enum // update mode for generic interrupt 1/2
     {
@@ -258,6 +274,22 @@ public:
         tap_max_pick_to_pick_interval_t pick_to_pick_interval = tap_max_pick_to_pick_interval_t::TAP_MAX_12_SAMPLES,
         tap_min_quiet_between_taps_t quiet_interval = tap_min_quiet_between_taps_t::MIN_QUIET_80_SAMPLES,
         tap_min_quiet_inside_double_taps_t double_taps_time = tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_4_SAMPLES);
+
+    void SetOrientationChangeInterrupt( //TODO: Support for Interrupt Pin Map
+        bool enable,
+        bool enableX, bool enableY, bool enableZ,
+        orientation_change_data_source_t source,
+        orientation_reference_update_data_source_t reference_update_mode,
+        uint8_t threshold,
+        uint8_t duration);
+
+    void SetOrientationChangeInterrupt( //TODO: Support for Interrupt Pin Map
+        bool enable,
+        bool enableX, bool enableY, bool enableZ,
+        orientation_change_data_source_t source,
+        orientation_reference_update_data_source_t reference_update_mode,
+        float_t threshold,
+        float duration);
 
 private:
     uint8_t address;

@@ -1179,6 +1179,112 @@ void BMA400::SetTapInterrupt(
     write(BMA400_REG_TAP_CONFIG_1, val);
 }
 
+void BMA400::SetOrientationChangeInterrupt(
+    bool enable,
+    bool enableX, bool enableY, bool enableZ,
+    orientation_change_data_source_t source,
+    orientation_reference_update_data_source_t reference_update_mode,
+    uint8_t threshold,
+    uint8_t duration)
+{
+    if (!enable) //# Just disable the interrupt
+    {
+        unset(BMA400_REG_INT_CONFIG_0, 1);
+        return;
+    }
+
+    //# enable the interrupt
+    set(BMA400_REG_INT_CONFIG_0, 1);
+
+    uint8_t val;
+    switch (reference_update_mode)
+    {
+    case orientation_reference_update_data_source_t::ORIENT_UPDATE_MANUAL:
+        val = 0x00;
+        break;
+
+    case orientation_reference_update_data_source_t::ORIENT_UPDATE_AUTO_ACC_FILT_2_100HZ:
+        val = 0x04;
+        break;
+
+    case orientation_reference_update_data_source_t::ORIENT_UPDATE_AUTO_ACC_FILT_2_100HZ_LP_1HZ:
+        val = 0x08;
+        break;
+    }
+
+    if (source == orientation_change_data_source_t::ORIENT_UPDATE_ACC_FILT_2_100HZ_LP_1HZ)
+        val |= 0x10;
+
+    if (enableX)
+        val |= 0x20;
+
+    if (enableY)
+        val |= 0x40;
+
+    if (enableZ)
+        val |= 0x80;
+
+    write(BMA400_REG_ORIENT_CONFIG_0, val);
+    write(BMA400_REG_ORIENT_CONFIG_1, threshold);
+    write(BMA400_REG_ORIENT_CONFIG_2, duration);
+}
+
+void BMA400::SetOrientationChangeInterrupt(
+    bool enable,
+    bool enableX, bool enableY, bool enableZ,
+    orientation_change_data_source_t source,
+    orientation_reference_update_data_source_t reference_update_mode,
+    float threshold,
+    float duration)
+{
+    if (!enable) //# Just disable the interrupt
+    {
+        unset(BMA400_REG_INT_CONFIG_0, 1);
+        return;
+    }
+
+    //# enable the interrupt
+    set(BMA400_REG_INT_CONFIG_0, 1);
+
+    uint8_t val;
+    switch (reference_update_mode)
+    {
+    case orientation_reference_update_data_source_t::ORIENT_UPDATE_MANUAL:
+        val = 0x00;
+        break;
+
+    case orientation_reference_update_data_source_t::ORIENT_UPDATE_AUTO_ACC_FILT_2_100HZ:
+        val = 0x04;
+        break;
+
+    case orientation_reference_update_data_source_t::ORIENT_UPDATE_AUTO_ACC_FILT_2_100HZ_LP_1HZ:
+        val = 0x08;
+        break;
+    }
+
+    if (source == orientation_change_data_source_t::ORIENT_UPDATE_ACC_FILT_2_100HZ_LP_1HZ)
+        val |= 0x10;
+
+    if (enableX)
+        val |= 0x20;
+
+    if (enableY)
+        val |= 0x40;
+
+    if (enableZ)
+        val |= 0x80;
+
+    write(BMA400_REG_ORIENT_CONFIG_0, val);
+
+    threshold /= 8;
+    val = threshold > 255 ? 255 : (uint8_t)threshold;
+    write(BMA400_REG_ORIENT_CONFIG_1, val);
+
+    duration /= 10;
+    val = duration > 255 ? 255 : (uint8_t)duration;
+    write(BMA400_REG_ORIENT_CONFIG_2, val);
+}
+
 //* Private methods
 void BMA400::read(uint8_t _register, uint8_t length, uint8_t *values)
 {
