@@ -569,10 +569,304 @@ BMA400::acceleation_range_t BMA400::GetRange()
     return acceleation_range_t::UNKNOWN_RANGE;
 }
 
+void BMA400::ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin)
+{
+    switch (interrupt)
+    {
+    case interrupt_source_t::BAS_DATA_READY:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 7);
+            unset(BMA400_REG_INT2_MAP, 7);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 7);
+            unset(BMA400_REG_INT2_MAP, 7);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 7);
+            set(BMA400_REG_INT2_MAP, 7);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 7);
+            set(BMA400_REG_INT2_MAP, 7);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::BAS_FIFO_WATERMARK:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 6);
+            unset(BMA400_REG_INT2_MAP, 6);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 6);
+            unset(BMA400_REG_INT2_MAP, 6);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 6);
+            set(BMA400_REG_INT2_MAP, 6);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 6);
+            set(BMA400_REG_INT2_MAP, 6);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::BAS_FIFI_FULL:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 5);
+            unset(BMA400_REG_INT2_MAP, 5);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 5);
+            unset(BMA400_REG_INT2_MAP, 5);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 5);
+            set(BMA400_REG_INT2_MAP, 5);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 5);
+            set(BMA400_REG_INT2_MAP, 5);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::BAS_ENGINE_OVERRUN:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 4);
+            unset(BMA400_REG_INT2_MAP, 4);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 4);
+            unset(BMA400_REG_INT2_MAP, 4);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 4);
+            set(BMA400_REG_INT2_MAP, 4);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 4);
+            set(BMA400_REG_INT2_MAP, 4);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::BAS_WAKEUP:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 0);
+            unset(BMA400_REG_INT2_MAP, 0);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 0);
+            unset(BMA400_REG_INT2_MAP, 0);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 0);
+            set(BMA400_REG_INT2_MAP, 0);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 0);
+            set(BMA400_REG_INT2_MAP, 0);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::ADV_GENERIC_INTERRUPT_1:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 2);
+            unset(BMA400_REG_INT2_MAP, 2);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 2);
+            unset(BMA400_REG_INT2_MAP, 2);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 2);
+            set(BMA400_REG_INT2_MAP, 2);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 2);
+            set(BMA400_REG_INT2_MAP, 2);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::ADV_GENERIC_INTERRUPT_2:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 3);
+            unset(BMA400_REG_INT2_MAP, 3);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 3);
+            unset(BMA400_REG_INT2_MAP, 3);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 3);
+            set(BMA400_REG_INT2_MAP, 3);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 3);
+            set(BMA400_REG_INT2_MAP, 3);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT1_MAP, 1);
+            unset(BMA400_REG_INT2_MAP, 1);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT1_MAP, 1);
+            unset(BMA400_REG_INT2_MAP, 1);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT1_MAP, 1);
+            set(BMA400_REG_INT2_MAP, 1);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT1_MAP, 1);
+            set(BMA400_REG_INT2_MAP, 1);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::ADV_SET_DETECTOR_COUNTER:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT12_MAP, 0);
+            unset(BMA400_REG_INT12_MAP, 4);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT12_MAP, 0);
+            unset(BMA400_REG_INT12_MAP, 4);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT12_MAP, 0);
+            set(BMA400_REG_INT12_MAP, 4);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT12_MAP, 0);
+            set(BMA400_REG_INT12_MAP, 4);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::ADV_SINGLE_TAP:
+    case interrupt_source_t::ADV_DOUBLE_TAP:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT12_MAP, 2);
+            unset(BMA400_REG_INT12_MAP, 6);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT12_MAP, 2);
+            unset(BMA400_REG_INT12_MAP, 6);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT12_MAP, 2);
+            set(BMA400_REG_INT12_MAP, 6);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT12_MAP, 2);
+            set(BMA400_REG_INT12_MAP, 6);
+            break;
+        }
+        break;
+
+    case interrupt_source_t::ADV_ACTIVITY_CHANGE:
+        switch (pin)
+        {
+
+        case interrupt_pin_t::INT_NONE:
+            unset(BMA400_REG_INT12_MAP, 3);
+            unset(BMA400_REG_INT12_MAP, 7);
+            break;
+
+        case interrupt_pin_t::INT_PIN_1:
+            set(BMA400_REG_INT12_MAP, 3);
+            unset(BMA400_REG_INT12_MAP, 7);
+            break;
+
+        case interrupt_pin_t::INT_PIN_2:
+            unset(BMA400_REG_INT12_MAP, 3);
+            set(BMA400_REG_INT12_MAP, 7);
+            break;
+
+        case interrupt_pin_t::INT_PIN_BOTH:
+            set(BMA400_REG_INT12_MAP, 3);
+            set(BMA400_REG_INT12_MAP, 7);
+            break;
+        }
+        break;
+    }
+}
+
 /*!
  *  @brief  Configures Generic Interrupt 1 or 2
  *  @param  interrupt target interrupt. it has to be either ADV_GENERIC_INTERRUPT_1 or ADV_GENERIC_INTERRUPT_2
  *  @param  enable true if enables interrupt otherwise it disables the interrupt
+ *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  reference mode of updating reference acceleration. see generic_interrupt_reference_update_t
  *  @param  mode Interrupt mode. On Activity or On Inactivity
  *  @param  threshold threshold (raw value) LSB = 8mg
@@ -587,6 +881,7 @@ BMA400::acceleation_range_t BMA400::GetRange()
  */
 void BMA400::SetGenericInterrupt(
     interrupt_source_t interrupt, bool enable,
+    interrupt_pin_t pin,
     generic_interrupt_reference_update_t reference,
     generic_interrupt_mode_t mode,
     uint8_t threshold,
@@ -604,6 +899,9 @@ void BMA400::SetGenericInterrupt(
         unset(BMA400_REG_INT_CONFIG_0, interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? 2 : 3);
         return;
     }
+
+    //# Wiring Interrupt to Interrupt pins
+    ConfigureInterruptPin(interrupt, pin);
 
     uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
     uint8_t val = 0;
@@ -707,6 +1005,7 @@ void BMA400::SetGenericInterrupt(
  *  @brief  Configures Generic Interrupt 1 or 2
  *  @param  interrupt target interrupt. it has to be either ADV_GENERIC_INTERRUPT_1 or ADV_GENERIC_INTERRUPT_2
  *  @param  enable true if enables interrupt otherwise it disables the interrupt
+ *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  reference mode of updating reference acceleration. see generic_interrupt_reference_update_t
  *  @param  mode Interrupt mode. On Activity or On Inactivity
  *  @param  threshold threshold - in mg
@@ -721,6 +1020,7 @@ void BMA400::SetGenericInterrupt(
  */
 void BMA400::SetGenericInterrupt(
     interrupt_source_t interrupt, bool enable,
+    interrupt_pin_t pin,
     generic_interrupt_reference_update_t reference,
     generic_interrupt_mode_t mode,
     float threshold,
@@ -738,6 +1038,9 @@ void BMA400::SetGenericInterrupt(
         unset(BMA400_REG_INT_CONFIG_0, interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? 2 : 3);
         return;
     }
+
+    //# Wiring Interrupt to Interrupt pins
+    ConfigureInterruptPin(interrupt, pin);
 
     uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
     uint8_t val = 0;
@@ -918,12 +1221,16 @@ void BMA400::SetGenericInterruptReference(interrupt_source_t interrupt)
 
 /*!
  *  @brief  Enabling/Disabling the step detector interrupt and step counter
+ *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  enable true to enable the interrupt (counter)
  */
-void BMA400::SetStepDetectorCounter(bool enable)
+void BMA400::SetStepDetectorCounter(bool enable, interrupt_pin_t pin)
 {
     if (enable)
+    {
         set(BMA400_REG_INT_CONFIG_1, 0);
+        ConfigureInterruptPin(interrupt_source_t::ADV_SET_DETECTOR_COUNTER, pin);
+    }
     else
         unset(BMA400_REG_INT_CONFIG_1, 0);
 }
@@ -953,6 +1260,7 @@ bool BMA400::ResetStepCounter()
 /*!
  *  @brief  Configures Activity change Interrupt
  *  @param  threshold threshold - raw value
+ *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  enable true if enables interrupt otherwise it disables the interrupt
  *  @param  observation_number number of observations generates the interrupt
  *  @param  data_source data source is used to monitor the acceleration. Acc Filt 2 is recommended
@@ -961,6 +1269,7 @@ bool BMA400::ResetStepCounter()
  *  @param  enableZ enables interrupt on Z Axis
  */
 void BMA400::SetActivityChangeInterrupt(bool enable,
+                                        interrupt_pin_t pin,
                                         uint8_t threshold,
                                         activity_change_observation_number_t observation_number,
                                         interrupt_data_source_t data_source,
@@ -971,6 +1280,9 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
         unset(BMA400_REG_INT_CONFIG_1, 4);
         return;
     }
+
+    //# Wiring Interrupt to Interrupt pins
+    ConfigureInterruptPin(interrupt_source_t::ADV_ACTIVITY_CHANGE, pin);
 
     set(BMA400_REG_INT_CONFIG_1, 4);
     write(BMA400_REG_ACT_CHNG_INT_CONFIG_0, threshold);
@@ -1018,6 +1330,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
 /*!
  *  @brief  Configures Activity change Interrupt
  *  @param  threshold threshold - in mg
+ *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  enable true if enables interrupt otherwise it disables the interrupt
  *  @param  observation_number number of observations generates the interrupt
  *  @param  data_source data source is used to monitor the acceleration. Acc Filt 2 is recommended
@@ -1026,6 +1339,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
  *  @param  enableZ enables interrupt on Z Axis
  */
 void BMA400::SetActivityChangeInterrupt(bool enable,
+                                        interrupt_pin_t pin,
                                         float threshold,
                                         activity_change_observation_number_t observation_number,
                                         interrupt_data_source_t data_source,
@@ -1036,6 +1350,9 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
         unset(BMA400_REG_INT_CONFIG_1, 4);
         return;
     }
+
+    //# Wiring Interrupt to Interrupt pins
+    ConfigureInterruptPin(interrupt_source_t::ADV_ACTIVITY_CHANGE, pin);
 
     set(BMA400_REG_INT_CONFIG_1, 4);
     threshold /= 8.0;
@@ -1087,6 +1404,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
  *  @param  enableSingleTap true enables single tap interrupt otherwise it disables the interrupt
  *  @param  enableDoubleTap true enables double tap interrupt otherwise it disables the interrupt
  *  @param  axis tap axis can be either X, Y, or Z. use tap_axis_t data def
+ *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  mode Interrupt mode. On Activity or On Inactivity
  *  @param  sensitivity sensitivity level to tap ranged from 7 (highest) to 0 (lowest). use tap_sensitivity_level_t type def 
  *  @param  pick_to_pick_interval maximum time between upper and lower peak of valid taps (in data samples). use tap_max_pick_to_pick_interval_t data type
@@ -1096,6 +1414,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
 void BMA400::SetTapInterrupt(
     bool enableSingleTap, bool enableDoubleTap,
     tap_axis_t axis,
+    interrupt_pin_t pin,
     tap_sensitivity_level_t sensitivity,
     tap_max_pick_to_pick_interval_t pick_to_pick_interval,
     tap_min_quiet_between_taps_t quiet_interval,
@@ -1108,6 +1427,9 @@ void BMA400::SetTapInterrupt(
         unset(BMA400_REG_INT_CONFIG_1, 3);
         return; //# Just disable both interrupts
     }
+
+    //# Wiring Interrupt to Interrupt pins
+    ConfigureInterruptPin(interrupt_source_t::ADV_SINGLE_TAP, pin);
 
     //# Force increasing the ODR to 200Hz
     output_data_rate_t rate = GetDataRate();
@@ -1203,6 +1525,7 @@ void BMA400::SetTapInterrupt(
  *  @param  enableX enables interrupt on X Axis
  *  @param  enableY enables interrupt on Y Axis
  *  @param  enableZ enables interrupt on Z Axis
+ *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  source  data source is used as input for the orientation change detection. 
  * see orientation_reference_update_data_source_t for mode details
  *  @param  reference_update_mode   mode of updating the orientation refernce vector (acceleration). 
@@ -1213,6 +1536,7 @@ void BMA400::SetTapInterrupt(
 void BMA400::SetOrientationChangeInterrupt(
     bool enable,
     bool enableX, bool enableY, bool enableZ,
+    interrupt_pin_t pin,
     orientation_change_data_source_t source,
     orientation_reference_update_data_source_t reference_update_mode,
     uint8_t threshold,
@@ -1226,6 +1550,9 @@ void BMA400::SetOrientationChangeInterrupt(
 
     //# enable the interrupt
     set(BMA400_REG_INT_CONFIG_0, 1);
+
+    //# Wiring Interrupt to Interrupt pins
+    ConfigureInterruptPin(interrupt_source_t::ADV_ORIENTATION_CHANGE, pin);
 
     uint8_t val;
     switch (reference_update_mode)
@@ -1276,6 +1603,7 @@ void BMA400::SetOrientationChangeInterrupt(
 void BMA400::SetOrientationChangeInterrupt(
     bool enable,
     bool enableX, bool enableY, bool enableZ,
+    interrupt_pin_t pin,
     orientation_change_data_source_t source,
     orientation_reference_update_data_source_t reference_update_mode,
     float threshold,

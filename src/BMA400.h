@@ -5,7 +5,6 @@
 #define BMA400_REG_CHIP_ID 0x00
 #define BMA400_REG_STATUS 0x03
 #define BMA400_REG_ACC_DATA 0x04
-
 #define BMA400_REG_EVENT 0x0D
 #define BMA400_REG_INT_STAT_0 0x0E
 #define BMA400_REG_INT_STAT_1 0x0F
@@ -16,6 +15,9 @@
 #define BMA400_REG_ACC_CONFIG_1 0x1A
 #define BMA400_REG_ACC_CONFIG_2 0x1B
 #define BMA400_REG_INT_CONFIG_0 0x1F
+#define BMA400_REG_INT1_MAP 0x21
+#define BMA400_REG_INT2_MAP 0x22
+#define BMA400_REG_INT12_MAP 0x23
 #define BMA400_REG_INT_CONFIG_1 0x20
 #define BMA400_REG_AUTO_LOW_POW_0 0x2A
 #define BMA400_REG_AUTO_LOW_POW_1 0x2B
@@ -91,13 +93,29 @@ public:
         RANGE_16G
     } acceleation_range_t;
 
-    typedef enum // all advanced interrupt source
+    typedef enum // All interrupt sources
     {
-        ADV_GENERIC_INTERRUPT_1,  // Generic Interrupt for (in)activity detection
-        ADV_GENERIC_INTERRUPT_2,  //  Generic Interrupt for (in)activity detection
-        ADV_SET_DETECTOR_COUNTER, // Step Detector interrupt / Step Counter
-        ADV_ACTIVITY_CHANGE,      // Activity Change interrupt
+        BAS_DATA_READY = 0x0001,           // Data Ready
+        BAS_FIFO_WATERMARK = 0x0002,       // FIFO Watermark
+        BAS_FIFI_FULL = 0x0004,            // FIFI Full
+        BAS_ENGINE_OVERRUN = 0x0008,       // Engine Overrun - interrupt calculation couldn't be finished
+        BAS_WAKEUP = 0x0010,               // Weke up
+        ADV_GENERIC_INTERRUPT_1 = 0x0020,  // Generic Interrupt for (in)activity detection
+        ADV_GENERIC_INTERRUPT_2 = 0x0040,  //  Generic Interrupt for (in)activity detection
+        ADV_SET_DETECTOR_COUNTER = 0x0080, // Step Detector interrupt / Step Counter
+        ADV_ACTIVITY_CHANGE = 0x0100,      // Activity Change interrupt
+        ADV_SINGLE_TAP = 0x0200,           // Single tap is detected
+        ADV_DOUBLE_TAP = 0x0400,           // Double tap is detected
+        ADV_ORIENTATION_CHANGE = 0x0800,   // Orientation is changed
     } interrupt_source_t;
+
+    typedef enum // Interrupt Pins
+    {
+        INT_NONE,    // No Link
+        INT_PIN_1,   // Interrupt Pin 1
+        INT_PIN_2,   // Interrupt Pin 2
+        INT_PIN_BOTH // Wire to both
+    } interrupt_pin_t;
 
     typedef enum // hysteresis amplitude for generic interrupt 1/2
     {
@@ -230,8 +248,11 @@ public:
     acceleation_range_t GetRange();
 
     //# Interrupts
-    void SetGenericInterrupt( //TODO: Support for Interrupt Pin Map
+    void ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin);
+
+    void SetGenericInterrupt(
         interrupt_source_t interrupt, bool enable,
+        interrupt_pin_t pin,
         generic_interrupt_reference_update_t reference,
         generic_interrupt_mode_t mode,
         uint8_t threshold, uint16_t duration,
@@ -240,8 +261,9 @@ public:
         bool enableX = true, bool enableY = true, bool enableZ = true,
         bool all_combined = false, bool ignoreSamplingRateFix = false);
 
-    void SetGenericInterrupt( //TODO: Support for Interrupt Pin Map
+    void SetGenericInterrupt(
         interrupt_source_t interrupt, bool enable,
+        interrupt_pin_t pin,
         generic_interrupt_reference_update_t reference,
         generic_interrupt_mode_t mode,
         float threshold, float duration,
@@ -253,41 +275,46 @@ public:
     void SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t *values);
     void SetGenericInterruptReference(interrupt_source_t interrupt);
 
-    void SetStepDetectorCounter(bool enable); //TODO: Support for Interrupt Pin Map + Sensor Position
+    void SetStepDetectorCounter(bool enable, interrupt_pin_t pin); //TODO: Support for Sensor Position (wrist/none wrist)
     uint32_t GetTotalSteps();
     bool ResetStepCounter();
 
     void SetActivityChangeInterrupt(bool enable,
+                                    interrupt_pin_t pin,
                                     uint8_t threshold,
                                     activity_change_observation_number_t observation_number,
                                     interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
-                                    bool enableX = true, bool enableY = true, bool enableZ = true); //TODO: Support for Interrupt Pin Map
+                                    bool enableX = true, bool enableY = true, bool enableZ = true);
 
     void SetActivityChangeInterrupt(bool enable,
+                                    interrupt_pin_t pin,
                                     float threshold,
                                     activity_change_observation_number_t observation_number,
                                     interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
-                                    bool enableX = true, bool enableY = true, bool enableZ = true); //TODO: Support for Interrupt Pin Map
+                                    bool enableX = true, bool enableY = true, bool enableZ = true);
 
-    void SetTapInterrupt( //TODO: Support for Interrupt Pin Map
+    void SetTapInterrupt(
         bool enableSingleTap, bool enableDoubleTap,
         tap_axis_t axis,
+        interrupt_pin_t pin,
         tap_sensitivity_level_t sensitivity = tap_sensitivity_level_t::TAP_SENSITIVITY_0,
         tap_max_pick_to_pick_interval_t pick_to_pick_interval = tap_max_pick_to_pick_interval_t::TAP_MAX_12_SAMPLES,
         tap_min_quiet_between_taps_t quiet_interval = tap_min_quiet_between_taps_t::MIN_QUIET_80_SAMPLES,
         tap_min_quiet_inside_double_taps_t double_taps_time = tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_4_SAMPLES);
 
-    void SetOrientationChangeInterrupt( //TODO: Support for Interrupt Pin Map
+    void SetOrientationChangeInterrupt(
         bool enable,
         bool enableX, bool enableY, bool enableZ,
+        interrupt_pin_t pin,
         orientation_change_data_source_t source,
         orientation_reference_update_data_source_t reference_update_mode,
         uint8_t threshold,
         uint8_t duration);
 
-    void SetOrientationChangeInterrupt( //TODO: Support for Interrupt Pin Map
+    void SetOrientationChangeInterrupt(
         bool enable,
         bool enableX, bool enableY, bool enableZ,
+        interrupt_pin_t pin,
         orientation_change_data_source_t source,
         orientation_reference_update_data_source_t reference_update_mode,
         float_t threshold,
