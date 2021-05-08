@@ -23,6 +23,8 @@
 #define BMA400_REG_GEN_INT_2_CONFIG 0x4A
 #define BMA400_REG_ACT_CHNG_INT_CONFIG_0 0x55
 #define BMA400_REG_ACT_CHNG_INT_CONFIG_1 0x56
+#define BMA400_REG_TAP_CONFIG_0 0x57
+#define BMA400_REG_TAP_CONFIG_1 0x58
 #define BMA400_REG_COMMAND 0x7E
 
 #define BMA400_ADDRESS_PRIMARY 0x14
@@ -138,6 +140,53 @@ public:
 
     } command_t;
 
+    typedef enum
+    {
+        TAP_X_AXIS,
+        TAP_Y_AXIS,
+        TAP_Z_AXIS
+
+    } tap_axis_t;
+
+    typedef enum
+    {
+        TAP_SENSITIVITY_7 = 0x00,
+        TAP_SENSITIVITY_6 = 0x01,
+        TAP_SENSITIVITY_5 = 0x02,
+        TAP_SENSITIVITY_4 = 0x03,
+        TAP_SENSITIVITY_3 = 0x04,
+        TAP_SENSITIVITY_2 = 0x05,
+        TAP_SENSITIVITY_1 = 0x06,
+        TAP_SENSITIVITY_0 = 0x07,
+    } tap_sensitivity_level_t;
+
+    typedef enum
+    {
+        TAP_MAX_6_SAMPLES = 0x00,
+        TAP_MAX_9_SAMPLES = 0x01,
+        TAP_MAX_12_SAMPLES = 0x02,
+        TAP_MAX_18_SAMPLES = 0x03,
+
+    } tap_max_pick_to_pick_interval_t;
+
+    typedef enum
+    {
+        MIN_QUIET_60_SAMPLES,
+        MIN_QUIET_80_SAMPLES,
+        MIN_QUIET_100_SAMPLES,
+        MIN_QUIET_120_SAMPLES,
+
+    } tap_min_quiet_between_taps_t;
+
+    typedef enum
+    {
+        MIN_QUIET_DT_4_SAMPLES,
+        MIN_QUIET_DT_8_SAMPLES,
+        MIN_QUIET_DT_12_SAMPLES,
+        MIN_QUIET_DT_16_SAMPLES,
+
+    } tap_min_quiet_inside_double_taps_t;
+
     bool Initialize(TwoWire &_wire = Wire);
     bool Initialize(uint8_t _address, TwoWire &_wire = Wire);
     power_mode_t GetPowerMode();
@@ -201,6 +250,14 @@ public:
                                     activity_change_observation_number_t observation_number,
                                     generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
                                     bool enableX = true, bool enableY = true, bool enableZ = true); //TODO: Support for Interrupt Pin Map
+
+    void SetTapInterrupt( //TODO: Support for Interrupt Pin Map
+        bool enableSingleTap, bool enableDoubleTap,
+        tap_axis_t axis,
+        tap_sensitivity_level_t sensitivity,
+        tap_max_pick_to_pick_interval_t pick_to_pick_interval,
+        tap_min_quiet_between_taps_t quiet_interval,
+        tap_min_quiet_inside_double_taps_t double_taps_time);
 
 private:
     uint8_t address;

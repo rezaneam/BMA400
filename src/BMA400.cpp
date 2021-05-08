@@ -593,9 +593,9 @@ void BMA400::SetGenericInterrupt(
     uint8_t threshold,
     uint16_t duration,
     generic_interrupt_hysteresis_amplitude_t hystersis,
-    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
-    bool enableX = true, bool enableY = true, bool enableZ = true,
-    bool all_combined = false, bool ignoreSamplingRateFix = false)
+    generic_interrupt_data_source_t data_source,
+    bool enableX, bool enableY, bool enableZ,
+    bool all_combined, bool ignoreSamplingRateFix)
 {
     if (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1 &
         interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2) //# ignore if not a generic interrupt
@@ -727,9 +727,9 @@ void BMA400::SetGenericInterrupt(
     float threshold,
     float duration,
     generic_interrupt_hysteresis_amplitude_t hystersis,
-    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
-    bool enableX = true, bool enableY = true, bool enableZ = true,
-    bool all_combined = false, bool ignoreSamplingRateFix = false)
+    generic_interrupt_data_source_t data_source,
+    bool enableX, bool enableY, bool enableZ ,
+    bool all_combined, bool ignoreSamplingRateFix)
 {
     if (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1 &
         interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2) //# ignore if not a generic interrupt
@@ -1063,6 +1063,110 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
         val |= 0x80;
 
     write(BMA400_REG_ACT_CHNG_INT_CONFIG_1, val);
+}
+
+void BMA400::SetTapInterrupt(
+    bool enableSingleTap, bool enableDoubleTap,
+    tap_axis_t axis,
+    tap_sensitivity_level_t sensitivity,
+    tap_max_pick_to_pick_interval_t pick_to_pick_interval,
+    tap_min_quiet_between_taps_t quiet_interval,
+    tap_min_quiet_inside_double_taps_t double_taps_time)
+{
+
+    if (!enableSingleTap & !enableDoubleTap)
+    {
+        unset(BMA400_REG_INT_CONFIG_1, 2);
+        unset(BMA400_REG_INT_CONFIG_1, 3);
+        return; //# Just disable both interrupts
+    }
+
+    //# Force increasing the ODR to 200Hz
+    output_data_rate_t rate = GetDataRate();
+    if (rate == output_data_rate_t::Filter1_024x_12Hz |
+        rate == output_data_rate_t::Filter1_024x_25Hz |
+        rate == output_data_rate_t::Filter1_024x_50Hz |
+        rate == output_data_rate_t::Filter1_024x_100Hz)
+        SetDataRate(output_data_rate_t::Filter1_024x_200Hz);
+    else if (rate == output_data_rate_t::Filter1_048x_12Hz |
+             rate == output_data_rate_t::Filter1_048x_25Hz |
+             rate == output_data_rate_t::Filter1_048x_50Hz |
+             rate == output_data_rate_t::Filter1_048x_100Hz |
+             rate == output_data_rate_t::Filter2_100Hz |
+             rate == output_data_rate_t::Filter2_100Hz_LPF_1Hz)
+        SetDataRate(output_data_rate_t::Filter1_048x_200Hz);
+
+    //# Enabling the interrupts
+    if (enableSingleTap)
+        set(BMA400_REG_INT_CONFIG_1, 2);
+    else
+        unset(BMA400_REG_INT_CONFIG_1, 2);
+
+    if (enableDoubleTap)
+        set(BMA400_REG_INT_CONFIG_1, 3);
+    else
+        unset(BMA400_REG_INT_CONFIG_1, 3);
+
+    uint8_t val = (uint8_t)sensitivity;
+
+    switch (axis)
+    {
+    case tap_axis_t::TAP_X_AXIS:
+        val |= 0x08;
+        break;
+
+    case tap_axis_t::TAP_Y_AXIS:
+        val |= 0x04;
+        break;
+
+    case tap_axis_t::TAP_Z_AXIS:
+        // Do nothing
+        break;
+    }
+
+    write(BMA400_REG_TAP_CONFIG_0, val);
+
+    val = (uint8_t)pick_to_pick_interval;
+
+    switch (quiet_interval)
+    {
+    case tap_min_quiet_between_taps_t::MIN_QUIET_60_SAMPLES:
+        // Do nothing
+        break;
+
+    case tap_min_quiet_between_taps_t::MIN_QUIET_80_SAMPLES:
+        val |= 0x04;
+        break;
+
+    case tap_min_quiet_between_taps_t::MIN_QUIET_100_SAMPLES:
+        val |= 0x08;
+        break;
+
+    case tap_min_quiet_between_taps_t::MIN_QUIET_120_SAMPLES:
+        val |= 0x0C;
+        break;
+    }
+
+    switch (double_taps_time)
+    {
+    case tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_4_SAMPLES:
+        // Do nothing
+        break;
+
+    case tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_8_SAMPLES:
+        val |= 0x10;
+        break;
+
+    case tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_12_SAMPLES:
+        val |= 0x10;
+        break;
+
+    case tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_16_SAMPLES:
+        val |= 0x10;
+        break;
+    }
+
+    write(BMA400_REG_TAP_CONFIG_1, val);
 }
 
 //* Private methods
