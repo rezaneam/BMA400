@@ -35,7 +35,7 @@
 class BMA400
 {
 public:
-    typedef enum
+    typedef enum // power modes (includes noise rate as well)
     {
         UNKNOWN_MODE,                  // Something most be wrong
         SLEEP,                         // 0.2uA
@@ -49,7 +49,7 @@ public:
         NORMAL_LOWEST_NOISE,           // 14.5uA
     } power_mode_t;
 
-    typedef enum
+    typedef enum // Timeout modes for auto low power purpose
     {
         UNKNOWN_TIMEOUT,      // Something most be wrong
         DISABLE,              // Auto Low power timeout is disabled
@@ -57,7 +57,7 @@ public:
         ON_TIMEOUT_RST_G_INT2 // Auto Low Power ontime and also resets generic interrupt 2 asserted
     } auto_low_power_timeout_mode_t;
 
-    typedef enum
+    typedef enum // accelerometer data rate (includes the Bandwidth and data source as well)
     {
         UNKNOWN_RATE,         // Something most be wrong
         Filter1_048x_800Hz,   // ODR 800Hz BW 384Hz
@@ -78,7 +78,7 @@ public:
         Filter2_100Hz_LPF_1Hz //Fixed ODR 100Hz filter by a low pass filter (BW=1Hz)
     } output_data_rate_t;
 
-    typedef enum
+    typedef enum // accelerometer range
     {
         UNKNOWN_RANGE,
         RANGE_2G,
@@ -87,7 +87,7 @@ public:
         RANGE_16G
     } acceleation_range_t;
 
-    typedef enum
+    typedef enum // all advanced interrupt source
     {
         ADV_GENERIC_INTERRUPT_1,  // Generic Interrupt for (in)activity detection
         ADV_GENERIC_INTERRUPT_2,  //  Generic Interrupt for (in)activity detection
@@ -95,7 +95,7 @@ public:
         ADV_ACTIVITY_CHANGE,      // Activity Change interrupt
     } interrupt_source_t;
 
-    typedef enum
+    typedef enum // hysteresis amplitude for generic interrupt 1/2
     {
         AMP_0mg,  // 0 mg hysteresis amplitude
         AMP_24mg, // 24 mg hysteresis amplitude
@@ -103,7 +103,7 @@ public:
         AMP_96mg  // 96 mg hysteresis amplitude
     } generic_interrupt_hysteresis_amplitude_t;
 
-    typedef enum
+    typedef enum // Number of observations needed for triggering activity change interrupt
     {
         OBSERVATION_32,
         OBSERVATION_64,
@@ -112,19 +112,19 @@ public:
         OBSERVATION_512
     } activity_change_observation_number_t;
 
-    typedef enum
+    typedef enum // Modes for generic interrupt 1/2
     {
         ACTIVITY_DETECTION,   // activity detection. referenced aceleration above threshold
         INACTIVITY_DETECTION, // inactivity detection. referenced aceleration below threshold
     } generic_interrupt_mode_t;
 
-    typedef enum
+    typedef enum // data sources used for interrupts
     {
         ACC_FILT_1, // using accelerometer filter 1 as data source for the interrupt generator
         ACC_FILT_2, // (recommended) using accelerometer filter 2 as data source for the interrupt generator
-    } generic_interrupt_data_source_t;
+    } interrupt_data_source_t;
 
-    typedef enum
+    typedef enum // update mode for generic interrupt 1/2
     {
         MANUAL_UPDATE,                     // reference values are updated by the user manually
         ONETIME_UPDATE,                    // reference values are updated automatically after triggering the interrupt
@@ -132,7 +132,7 @@ public:
         EVERYTIME_UPDATE_FROM_ACC_FILT_LP, // reference values are updated automatically after triggering the interrupt from acc_filt_low pass (1Hz)
     } generic_interrupt_reference_update_t;
 
-    typedef enum
+    typedef enum // Commands for BMA400
     {
         CMD_FIFO_FLUSH = 0xB0,     // Clears all data in FIFO
         CMD_RESET_STEP_CNT = 0xB1, // Resets the step counter to 0
@@ -140,15 +140,15 @@ public:
 
     } command_t;
 
-    typedef enum
+    typedef enum // Tap detection axis
     {
-        TAP_X_AXIS,
-        TAP_Y_AXIS,
-        TAP_Z_AXIS
+        TAP_X_AXIS, // tap detection on X axis
+        TAP_Y_AXIS, // tap detection on Y axis
+        TAP_Z_AXIS  // tap detection on Z axis
 
     } tap_axis_t;
 
-    typedef enum
+    typedef enum // Sensitivity levels for detection of tap. Range from 7 (highest sensitivity) to 0 (lowest sensitivity)
     {
         TAP_SENSITIVITY_7 = 0x00,
         TAP_SENSITIVITY_6 = 0x01,
@@ -160,30 +160,30 @@ public:
         TAP_SENSITIVITY_0 = 0x07,
     } tap_sensitivity_level_t;
 
-    typedef enum
+    typedef enum // Maximum time between upper and lower peak of valid taps (in data samples) - default 12 samples
     {
-        TAP_MAX_6_SAMPLES = 0x00,
-        TAP_MAX_9_SAMPLES = 0x01,
-        TAP_MAX_12_SAMPLES = 0x02,
-        TAP_MAX_18_SAMPLES = 0x03,
+        TAP_MAX_6_SAMPLES = 0x00,  // 6 data samples for high-low (pick to pick) tap signal change time
+        TAP_MAX_9_SAMPLES = 0x01,  // 9 data samples for high-low (pick to pick) tap signal change time
+        TAP_MAX_12_SAMPLES = 0x02, // 12 data samples for high-low (pick to pick) tap signal change time
+        TAP_MAX_18_SAMPLES = 0x03, // 18 data samples for high-low (pick to pick) tap signal change time
 
     } tap_max_pick_to_pick_interval_t;
 
-    typedef enum
+    typedef enum // Minimum quiet time (no tap) between two consecutive taps (in data samples) - default 80 samples
     {
-        MIN_QUIET_60_SAMPLES,
-        MIN_QUIET_80_SAMPLES,
-        MIN_QUIET_100_SAMPLES,
-        MIN_QUIET_120_SAMPLES,
+        MIN_QUIET_60_SAMPLES,  // 60 data samples quiet tie between single or double taps
+        MIN_QUIET_80_SAMPLES,  // 80 data samples quiet tie between single or double taps
+        MIN_QUIET_100_SAMPLES, // 100 data samples quiet tie between single or double taps
+        MIN_QUIET_120_SAMPLES, // 120 data samples quiet tie between single or double taps
 
     } tap_min_quiet_between_taps_t;
 
-    typedef enum
+    typedef enum // Mininum time between two taps in a double tap (in data samples) - default 4 samples
     {
-        MIN_QUIET_DT_4_SAMPLES,
-        MIN_QUIET_DT_8_SAMPLES,
-        MIN_QUIET_DT_12_SAMPLES,
-        MIN_QUIET_DT_16_SAMPLES,
+        MIN_QUIET_DT_4_SAMPLES,  // 4 data samples minimum time between double taps
+        MIN_QUIET_DT_8_SAMPLES,  // 8 data samples minimum time between double taps
+        MIN_QUIET_DT_12_SAMPLES, // 12 data samples minimum time between double taps
+        MIN_QUIET_DT_16_SAMPLES, // 16 data samples minimum time between double taps
 
     } tap_min_quiet_inside_double_taps_t;
 
@@ -219,7 +219,7 @@ public:
         generic_interrupt_mode_t mode,
         uint8_t threshold, uint16_t duration,
         generic_interrupt_hysteresis_amplitude_t hystersis,
-        generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+        interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
         bool enableX = true, bool enableY = true, bool enableZ = true,
         bool all_combined = false, bool ignoreSamplingRateFix = false);
 
@@ -229,7 +229,7 @@ public:
         generic_interrupt_mode_t mode,
         float threshold, float duration,
         generic_interrupt_hysteresis_amplitude_t hystersis,
-        generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+        interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
         bool enableX = true, bool enableY = true, bool enableZ = true,
         bool all_combined = false, bool ignoreSamplingRateFix = false);
 
@@ -242,22 +242,22 @@ public:
     void SetActivityChangeInterrupt(bool enable,
                                     uint8_t threshold,
                                     activity_change_observation_number_t observation_number,
-                                    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+                                    interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
                                     bool enableX = true, bool enableY = true, bool enableZ = true); //TODO: Support for Interrupt Pin Map
 
     void SetActivityChangeInterrupt(bool enable,
                                     float threshold,
                                     activity_change_observation_number_t observation_number,
-                                    generic_interrupt_data_source_t data_source = generic_interrupt_data_source_t::ACC_FILT_2,
+                                    interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
                                     bool enableX = true, bool enableY = true, bool enableZ = true); //TODO: Support for Interrupt Pin Map
 
     void SetTapInterrupt( //TODO: Support for Interrupt Pin Map
         bool enableSingleTap, bool enableDoubleTap,
         tap_axis_t axis,
-        tap_sensitivity_level_t sensitivity,
-        tap_max_pick_to_pick_interval_t pick_to_pick_interval,
-        tap_min_quiet_between_taps_t quiet_interval,
-        tap_min_quiet_inside_double_taps_t double_taps_time);
+        tap_sensitivity_level_t sensitivity = tap_sensitivity_level_t::TAP_SENSITIVITY_0,
+        tap_max_pick_to_pick_interval_t pick_to_pick_interval = tap_max_pick_to_pick_interval_t::TAP_MAX_12_SAMPLES,
+        tap_min_quiet_between_taps_t quiet_interval = tap_min_quiet_between_taps_t::MIN_QUIET_80_SAMPLES,
+        tap_min_quiet_inside_double_taps_t double_taps_time = tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_4_SAMPLES);
 
 private:
     uint8_t address;

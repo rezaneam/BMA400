@@ -728,7 +728,7 @@ void BMA400::SetGenericInterrupt(
     float duration,
     generic_interrupt_hysteresis_amplitude_t hystersis,
     generic_interrupt_data_source_t data_source,
-    bool enableX, bool enableY, bool enableZ ,
+    bool enableX, bool enableY, bool enableZ,
     bool all_combined, bool ignoreSamplingRateFix)
 {
     if (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1 &
@@ -1065,6 +1065,17 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
     write(BMA400_REG_ACT_CHNG_INT_CONFIG_1, val);
 }
 
+/*!
+ *  @brief  Configures Single and double tap interrupts
+ *  @param  enableSingleTap true enables single tap interrupt otherwise it disables the interrupt
+ *  @param  enableDoubleTap true enables double tap interrupt otherwise it disables the interrupt
+ *  @param  axis tap axis can be either X, Y, or Z. use tap_axis_t data def
+ *  @param  mode Interrupt mode. On Activity or On Inactivity
+ *  @param  sensitivity sensitivity level to tap ranged from 7 (highest) to 0 (lowest). use tap_sensitivity_level_t type def 
+ *  @param  pick_to_pick_interval maximum time between upper and lower peak of valid taps (in data samples). use tap_max_pick_to_pick_interval_t data type
+ *  @param  quiet_interval Minimum quiet time (no tap) between two consecutive taps (in data samples). use tap_min_quiet_between_taps_t data type
+ *  @param  double_taps_time Mininum time between two taps in a double tap (in data samples). use tap_min_quiet_inside_double_taps_t data type
+ */
 void BMA400::SetTapInterrupt(
     bool enableSingleTap, bool enableDoubleTap,
     tap_axis_t axis,
