@@ -202,7 +202,7 @@ void BMA400::ReadAcceleration(int16_t *values)
 }
 
 /*!
- *  @brief  Getting Acceleration - processed in mg
+ *  @brief  Getting Acceleration - processed in g
  *  @param  values must be address of an array (float) with at least 3 elements 
  */
 void BMA400::ReadAcceleration(float *values)
