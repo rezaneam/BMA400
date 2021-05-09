@@ -31,6 +31,19 @@ bool BMA400::Initialize(uint8_t _address, TwoWire &_wire)
 }
 
 /*!
+ *  @brief  Quick Stepup for BMA400
+ *  @param  mode power mode see power_mode_t for more details
+ *  @param  rate data rate select one between 16 rates. see output_data_rate_t for more details
+ *  @param  range sampling range 2, 4, 8, 16G. Use acceleation_range_t data type
+ */
+void BMA400::Setup(const power_mode_t &mode, output_data_rate_t rate, acceleation_range_t range)
+{
+    SetPowerMode(mode);
+    SetRange(range);
+    SetDataRate(rate);
+}
+
+/*!
  *  @brief  Runs command
  *  @param  cmd check command_t for more details
  *  @return true if command is sent successfully
@@ -164,6 +177,9 @@ void BMA400::SetPowerMode(const power_mode_t &mode)
         config = (config & 0xCF) | 0x30;
         write(BMA400_REG_ACC_CONFIG_1, config);
         return;
+
+    default:
+        break;
     }
 }
 
@@ -210,6 +226,9 @@ void BMA400::ReadAcceleation(float *values)
 
     case acceleation_range_t::RANGE_16G:
         divider = 128;
+        break;
+
+    default:
         break;
     }
 
@@ -542,6 +561,9 @@ void BMA400::SetRange(acceleation_range_t range)
     case acceleation_range_t::RANGE_16G:
         write(BMA400_REG_ACC_CONFIG_1, 0xC0, 0x3F);
         break;
+
+    default:
+        break;
     }
 }
 
@@ -591,7 +613,7 @@ BMA400::interrupt_source_t BMA400::GetInterrupts()
     if (interrupts[0] & 0x08)
         result |= interrupt_source_t::ADV_GENERIC_INTERRUPT_2;
 
-    if ((interrupts[0] & 0x10) | (interrupts[1] & 0x10) | interrupts[2] & 0x10)
+    if ((interrupts[0] & 0x10) | (interrupts[1] & 0x10) | (interrupts[2] & 0x10))
         result |= interrupt_source_t::BAS_ENGINE_OVERRUN;
 
     if (interrupts[0] & 0x20)
@@ -1053,8 +1075,8 @@ void BMA400::ConfigureGenericInterrupt(
     bool enableX, bool enableY, bool enableZ,
     bool all_combined, bool ignoreSamplingRateFix)
 {
-    if (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1 &
-        interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2) //# ignore if not a generic interrupt
+    if ((interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1) &
+        (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2)) //# ignore if not a generic interrupt
         return;
     if (!enable) //# just disable the interrupt
     {
@@ -1072,13 +1094,13 @@ void BMA400::ConfigureGenericInterrupt(
     if (!ignoreSamplingRateFix)
     {
         output_data_rate_t rate = GetDataRate();
-        if (rate == output_data_rate_t::Filter1_024x_12Hz |
-            rate == output_data_rate_t::Filter1_024x_25Hz |
-            rate == output_data_rate_t::Filter1_024x_50Hz)
+        if ((rate == output_data_rate_t::Filter1_024x_12Hz) |
+            (rate == output_data_rate_t::Filter1_024x_25Hz) |
+            (rate == output_data_rate_t::Filter1_024x_50Hz))
             SetDataRate(output_data_rate_t::Filter1_024x_100Hz);
-        else if (rate == output_data_rate_t::Filter1_048x_12Hz |
-                 rate == output_data_rate_t::Filter1_048x_25Hz |
-                 rate == output_data_rate_t::Filter1_048x_50Hz)
+        else if ((rate == output_data_rate_t::Filter1_048x_12Hz) |
+                 (rate == output_data_rate_t::Filter1_048x_25Hz) |
+                 (rate == output_data_rate_t::Filter1_048x_50Hz))
             SetDataRate(output_data_rate_t::Filter1_048x_100Hz);
     }
 
@@ -1192,8 +1214,8 @@ void BMA400::ConfigureGenericInterrupt(
     bool enableX, bool enableY, bool enableZ,
     bool all_combined, bool ignoreSamplingRateFix)
 {
-    if (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1 &
-        interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2) //# ignore if not a generic interrupt
+    if ((interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_1) &
+        (interrupt != interrupt_source_t::ADV_GENERIC_INTERRUPT_2)) //# ignore if not a generic interrupt
         return;
     if (!enable) //# just disable the interrupt
     {
@@ -1211,13 +1233,13 @@ void BMA400::ConfigureGenericInterrupt(
     if (!ignoreSamplingRateFix)
     {
         output_data_rate_t rate = GetDataRate();
-        if (rate == output_data_rate_t::Filter1_024x_12Hz |
-            rate == output_data_rate_t::Filter1_024x_25Hz |
-            rate == output_data_rate_t::Filter1_024x_50Hz)
+        if ((rate == output_data_rate_t::Filter1_024x_12Hz) |
+            (rate == output_data_rate_t::Filter1_024x_25Hz) |
+            (rate == output_data_rate_t::Filter1_024x_50Hz))
             SetDataRate(output_data_rate_t::Filter1_024x_100Hz);
-        else if (rate == output_data_rate_t::Filter1_048x_12Hz |
-                 rate == output_data_rate_t::Filter1_048x_25Hz |
-                 rate == output_data_rate_t::Filter1_048x_50Hz)
+        else if ((rate == output_data_rate_t::Filter1_048x_12Hz) |
+                 (rate == output_data_rate_t::Filter1_048x_25Hz) |
+                 (rate == output_data_rate_t::Filter1_048x_50Hz))
             SetDataRate(output_data_rate_t::Filter1_048x_100Hz);
     }
 
@@ -1335,6 +1357,9 @@ void BMA400::ConfigureGenericInterrupt(
     case output_data_rate_t::Filter1_024x_800Hz:
     case output_data_rate_t::Filter1_048x_800Hz:
         duration *= 0.8;
+        break;
+
+    default:
         break;
     }
     uint16_t dur = (uint16_t)round(duration);
@@ -1595,17 +1620,17 @@ void BMA400::ConfigureTapInterrupt(
 
     //# Force increasing the ODR to 200Hz
     output_data_rate_t rate = GetDataRate();
-    if (rate == output_data_rate_t::Filter1_024x_12Hz |
-        rate == output_data_rate_t::Filter1_024x_25Hz |
-        rate == output_data_rate_t::Filter1_024x_50Hz |
-        rate == output_data_rate_t::Filter1_024x_100Hz)
+    if ((rate == output_data_rate_t::Filter1_024x_12Hz) |
+        (rate == output_data_rate_t::Filter1_024x_25Hz) |
+        (rate == output_data_rate_t::Filter1_024x_50Hz) |
+        (rate == output_data_rate_t::Filter1_024x_100Hz))
         SetDataRate(output_data_rate_t::Filter1_024x_200Hz);
-    else if (rate == output_data_rate_t::Filter1_048x_12Hz |
-             rate == output_data_rate_t::Filter1_048x_25Hz |
-             rate == output_data_rate_t::Filter1_048x_50Hz |
-             rate == output_data_rate_t::Filter1_048x_100Hz |
-             rate == output_data_rate_t::Filter2_100Hz |
-             rate == output_data_rate_t::Filter2_100Hz_LPF_1Hz)
+    else if ((rate == output_data_rate_t::Filter1_048x_12Hz) |
+             (rate == output_data_rate_t::Filter1_048x_25Hz) |
+             (rate == output_data_rate_t::Filter1_048x_50Hz) |
+             (rate == output_data_rate_t::Filter1_048x_100Hz) |
+             (rate == output_data_rate_t::Filter2_100Hz) |
+             (rate == output_data_rate_t::Filter2_100Hz_LPF_1Hz))
         SetDataRate(output_data_rate_t::Filter1_048x_200Hz);
 
     //# Enabling the interrupts
@@ -1865,7 +1890,7 @@ uint8_t BMA400::read(uint8_t _register)
     wire->beginTransmission(address);
     wire->write(_register);
     wire->endTransmission();
-    wire->requestFrom(address, 1);
+    wire->requestFrom(address, (uint8_t)1);
     return wire->read();
 }
 

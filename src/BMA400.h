@@ -229,6 +229,7 @@ public:
 
     bool Initialize(TwoWire &_wire = Wire);
     bool Initialize(uint8_t _address, TwoWire &_wire = Wire);
+    void Setup(const power_mode_t &mode, output_data_rate_t rate, acceleation_range_t range = acceleation_range_t::RANGE_2G);
     power_mode_t GetPowerMode();
     void SetPowerMode(const power_mode_t &mode);
     void ReadAcceleration(uint16_t *values);
