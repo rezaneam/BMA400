@@ -232,8 +232,8 @@ public:
     void Setup(const power_mode_t &mode, output_data_rate_t rate, acceleation_range_t range = acceleation_range_t::RANGE_2G);
     power_mode_t GetPowerMode();
     void SetPowerMode(const power_mode_t &mode);
-    void ReadAcceleration(uint16_t *values);
-    void ReadAcceleation(float *values);
+    void ReadAcceleration(int16_t *values);
+    void ReadAcceleration(float *values);
     bool ExecuteCommand(command_t cmd);
 
     //# Auto Low Power Configuration

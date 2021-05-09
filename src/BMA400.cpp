@@ -155,7 +155,7 @@ void BMA400::SetPowerMode(const power_mode_t &mode)
         return;
 
     case power_mode_t::NORMAL:
-        config = (config & 0xFC) | 0x01;
+        config = (config & 0xFC) | 0x02;
         write(BMA400_REG_ACC_CONFIG_0, config);
         config = read(BMA400_REG_ACC_CONFIG_1);
         config = (config & 0xCF) | 0x10;
@@ -163,7 +163,7 @@ void BMA400::SetPowerMode(const power_mode_t &mode)
         return;
 
     case power_mode_t::NORMAL_LOW_NOISE:
-        config = (config & 0xFC) | 0x01;
+        config = (config & 0xFC) | 0x02;
         write(BMA400_REG_ACC_CONFIG_0, config);
         config = read(BMA400_REG_ACC_CONFIG_1);
         config = (config & 0xCF) | 0x20;
@@ -171,7 +171,7 @@ void BMA400::SetPowerMode(const power_mode_t &mode)
         return;
 
     case power_mode_t::NORMAL_LOWEST_NOISE:
-        config = (config & 0xFC) | 0x01;
+        config = (config & 0xFC) | 0x02;
         write(BMA400_REG_ACC_CONFIG_0, config);
         config = read(BMA400_REG_ACC_CONFIG_1);
         config = (config & 0xCF) | 0x30;
@@ -187,14 +187,15 @@ void BMA400::SetPowerMode(const power_mode_t &mode)
  *  @brief  Getting Acceleration - unprocessed 
  *  @param  values must be address of an array (uint16_t) with at least 3 elements 
  */
-void BMA400::ReadAcceleration(uint16_t *values)
+void BMA400::ReadAcceleration(int16_t *values)
 {
     uint8_t data[6];
+
     read(BMA400_REG_ACC_DATA, 6, data);
 
     for (uint8_t i = 0; i < 3; i++)
     {
-        values[i] = data[0 + i * 2] + data[1 + i * 2];
+        values[i] = data[0 + i * 2] + 256 * data[1 + i * 2];
         if (values[i] > 2047)
             values[i] -= 4096;
     }
@@ -204,7 +205,7 @@ void BMA400::ReadAcceleration(uint16_t *values)
  *  @brief  Getting Acceleration - processed in mg
  *  @param  values must be address of an array (float) with at least 3 elements 
  */
-void BMA400::ReadAcceleation(float *values)
+void BMA400::ReadAcceleration(float *values)
 {
     uint8_t data[6];
     float divider = 1;
@@ -234,7 +235,7 @@ void BMA400::ReadAcceleation(float *values)
 
     for (uint8_t i = 0; i < 3; i++)
     {
-        values[i] = data[0 + i * 2] + data[1 + i * 2];
+        values[i] = data[0 + i * 2] + 256 * data[1 + i * 2];
         if (values[i] > 2047)
             values[i] -= 4096;
         values[i] /= divider;
