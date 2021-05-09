@@ -23,3 +23,4 @@
 - Mapping interrupts with the external interrupt pins. `LinkToInterruptPin`
 - Reading the interrupt register. `GetInterrupts`
 - Electrical Configuration of interrupt pins. `ConfigureInterruptPinSettings`
+- Configuring the basic interrupts `ConfigureBasicInterrupts`

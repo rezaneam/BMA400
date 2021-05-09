@@ -638,6 +638,54 @@ bool BMA400::HasInterrupt(interrupt_source_t source)
 }
 
 /*!
+ *  @brief  Enabling/Disabling Basic Interrupts
+ *  @param  source Interrupt source. can be either Data Ready, FIFO Full or FIFO Watermark
+ *  @param  enable true to enable interrupt
+ */
+void BMA400::ConfigureBasicInterrupts(interrupt_source_t source, bool enable)
+{
+    switch (source)
+    {
+    case interrupt_source_t::BAS_DATA_READY:
+        if (enable)
+            set(BMA400_REG_INT_CONFIG_0, 7);
+        else
+            unset(BMA400_REG_INT_CONFIG_0, 7);
+        break;
+
+    case interrupt_source_t::BAS_FIFO_WATERMARK:
+        if (enable)
+            set(BMA400_REG_INT_CONFIG_0, 6);
+        else
+            unset(BMA400_REG_INT_CONFIG_0, 6);
+        break;
+
+    case interrupt_source_t::BAS_FIFO_FULL:
+        if (enable)
+            set(BMA400_REG_INT_CONFIG_0, 5);
+        else
+            unset(BMA400_REG_INT_CONFIG_0, 5);
+        break;
+
+    default:
+        // Ignore the rest
+        break;
+    }
+}
+
+/*!
+ *  @brief  Configure Basic Interrupts (Enabling/Disabling & Linking to Interrupt Pins)
+ *  @param  source Interrupt source. can be either Data Ready, FIFO Full or FIFO Watermark
+ *  @param  enable true to enable interrupt
+ *  @param  pin target interrupt pin. see interrupt_pin_t for more detail
+ */
+void BMA400::ConfigureBasicInterrupts(interrupt_source_t source, bool enable, interrupt_pin_t pin)
+{
+    ConfigureBasicInterrupts(source, enable);
+    LinkToInterruptPin(source, pin);
+}
+
+/*!
  *  @brief  Configuring electrical behavior of interrupt pins
  *  @param  isLatched set true to enable latched (hold) interrupt. In latch mode interrupt stays active until reading the corresponding interrupt register is read.
  *  @param  isINT1_active_hi set true to set interrupt pin 1 active mode to high level (pull up), otherwise it's pulled down when active

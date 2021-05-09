@@ -256,6 +256,9 @@ public:
     interrupt_source_t GetInterrupts();
     bool HasInterrupt(interrupt_source_t source);
 
+    void ConfigureBasicInterrupts(interrupt_source_t source, bool enable);
+    void ConfigureBasicInterrupts(interrupt_source_t source, bool enable, interrupt_pin_t pin);
+
     void ConfigureInterruptPinSettings(
         bool isLatched,
         bool isINT1_active_hi,
