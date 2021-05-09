@@ -333,13 +333,13 @@ void BMA400::SetAutoLowPowerOnTimeout(auto_low_power_timeout_mode_t mode, float 
 }
 
 /*!
- *  @brief  Updating Auto Low Power
+ *  @brief  Configuring Auto Low Power
  *  @param  onDataReady enables Auto Low Power on Data Ready
  *  @param  onGenericInterrupt1 enables Auto Low Power on Generic Interrupt 1
  *  @param  mode timeout mode. check auto_low_power_timeout_mode_t for more detail
  *  @param  timeout_threshold threshold in ms scale
  */
-void BMA400::SetAutoLowPower(bool onDataReady, bool onGenericInterrupt1, auto_low_power_timeout_mode_t mode, float timeout_threshold)
+void BMA400::ConfigureAutoLowPower(bool onDataReady, bool onGenericInterrupt1, auto_low_power_timeout_mode_t mode, float timeout_threshold)
 {
     uint8_t val = 0;
 

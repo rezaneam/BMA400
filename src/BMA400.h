@@ -243,7 +243,7 @@ public:
     void SetAutoLowPowerOnDataReady(bool enable = true);
     void SetAutoLowPowerOnGenericInterrupt1(bool enable = true);
     void SetAutoLowPowerOnTimeout(auto_low_power_timeout_mode_t mode, float timeout_threshold);
-    void SetAutoLowPower(bool onDataReady, bool onGenericInterrupt1, auto_low_power_timeout_mode_t mode, float timeout_threshold);
+    void ConfigureAutoLowPower(bool onDataReady, bool onGenericInterrupt1, auto_low_power_timeout_mode_t mode, float timeout_threshold);
 
     //# Filter Configuration
     void SetDataRate(output_data_rate_t rate);
