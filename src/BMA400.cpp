@@ -947,7 +947,7 @@ void BMA400::ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t
  *  @param  all_combined if true uses AND logic applies on all axes to generate interrupts, otherwise OR logic
  *  @param  ignoreSamplingRateFix if false automatically increases the ODR to 100Hz if it's lower
  */
-void BMA400::SetGenericInterrupt(
+void BMA400::ConfigureGenericInterrupt(
     interrupt_source_t interrupt, bool enable,
     interrupt_pin_t pin,
     generic_interrupt_reference_update_t reference,
@@ -1086,7 +1086,7 @@ void BMA400::SetGenericInterrupt(
  *  @param  all_combined if true uses AND logic applies on all axes to generate interrupts, otherwise OR logic
  *  @param  ignoreSamplingRateFix if false automatically increases the ODR to 100Hz if it's lower
  */
-void BMA400::SetGenericInterrupt(
+void BMA400::ConfigureGenericInterrupt(
     interrupt_source_t interrupt, bool enable,
     interrupt_pin_t pin,
     generic_interrupt_reference_update_t reference,
@@ -1292,7 +1292,7 @@ void BMA400::SetGenericInterruptReference(interrupt_source_t interrupt)
  *  @param  pin wires the interrupt with any/both INT Pin 1 and INT Pin 2
  *  @param  enable true to enable the interrupt (counter)
  */
-void BMA400::SetStepDetectorCounter(bool enable, interrupt_pin_t pin)
+void BMA400::ConfigureStepDetectorCounter(bool enable, interrupt_pin_t pin)
 {
     if (enable)
     {
@@ -1336,12 +1336,12 @@ bool BMA400::ResetStepCounter()
  *  @param  enableY enables interrupt on Y Axis
  *  @param  enableZ enables interrupt on Z Axis
  */
-void BMA400::SetActivityChangeInterrupt(bool enable,
-                                        interrupt_pin_t pin,
-                                        uint8_t threshold,
-                                        activity_change_observation_number_t observation_number,
-                                        interrupt_data_source_t data_source,
-                                        bool enableX, bool enableY, bool enableZ)
+void BMA400::ConfigureActivityChangeInterrupt(bool enable,
+                                              interrupt_pin_t pin,
+                                              uint8_t threshold,
+                                              activity_change_observation_number_t observation_number,
+                                              interrupt_data_source_t data_source,
+                                              bool enableX, bool enableY, bool enableZ)
 {
     if (!enable) //# Just disable the interrupt
     {
@@ -1406,12 +1406,12 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
  *  @param  enableY enables interrupt on Y Axis
  *  @param  enableZ enables interrupt on Z Axis
  */
-void BMA400::SetActivityChangeInterrupt(bool enable,
-                                        interrupt_pin_t pin,
-                                        float threshold,
-                                        activity_change_observation_number_t observation_number,
-                                        interrupt_data_source_t data_source,
-                                        bool enableX, bool enableY, bool enableZ)
+void BMA400::ConfigureActivityChangeInterrupt(bool enable,
+                                              interrupt_pin_t pin,
+                                              float threshold,
+                                              activity_change_observation_number_t observation_number,
+                                              interrupt_data_source_t data_source,
+                                              bool enableX, bool enableY, bool enableZ)
 {
     if (!enable) //# Just disable the interrupt
     {
@@ -1479,7 +1479,7 @@ void BMA400::SetActivityChangeInterrupt(bool enable,
  *  @param  quiet_interval Minimum quiet time (no tap) between two consecutive taps (in data samples). use tap_min_quiet_between_taps_t data type
  *  @param  double_taps_time Mininum time between two taps in a double tap (in data samples). use tap_min_quiet_inside_double_taps_t data type
  */
-void BMA400::SetTapInterrupt(
+void BMA400::ConfigureTapInterrupt(
     bool enableSingleTap, bool enableDoubleTap,
     tap_axis_t axis,
     interrupt_pin_t pin,
@@ -1601,7 +1601,7 @@ void BMA400::SetTapInterrupt(
  *  @param  threshold   Threshold of orientation change will generate interrupt (raw value) - 1 LSB = 8 mg
  *  @param  duration    Minimum duration of the new orientation will generate interrupt (raw value) - 1 LSB = 10ms
  */
-void BMA400::SetOrientationChangeInterrupt(
+void BMA400::ConfigureOrientationChangeInterrupt(
     bool enable,
     bool enableX, bool enableY, bool enableZ,
     interrupt_pin_t pin,
@@ -1668,7 +1668,7 @@ void BMA400::SetOrientationChangeInterrupt(
  *  @param  threshold   Threshold of orientation change will generate interrupt (in mg scale)
  *  @param  duration    Minimum duration of the new orientation will generate interrupt (in ms scale)
  */
-void BMA400::SetOrientationChangeInterrupt(
+void BMA400::ConfigureOrientationChangeInterrupt(
     bool enable,
     bool enableX, bool enableY, bool enableZ,
     interrupt_pin_t pin,

@@ -108,9 +108,9 @@ public:
         ADV_SINGLE_TAP = 0x0400,                       // Single tap is detected
         ADV_DOUBLE_TAP = 0x0800,                       // Double tap is detected
         ADV_ORIENTATION_CHANGE = 0x1000,               // Orientation is changed
-        ADV_ORIENTATION_CHANGE_X = 0x2000,               // Orientation is changed
-        ADV_ORIENTATION_CHANGE_Y = 0x4000,               // Orientation is changed
-        ADV_ORIENTATION_CHANGE_Z = 0x8000,               // Orientation is changed
+        ADV_ORIENTATION_CHANGE_X = 0x2000,             // Orientation is changed
+        ADV_ORIENTATION_CHANGE_Y = 0x4000,             // Orientation is changed
+        ADV_ORIENTATION_CHANGE_Z = 0x8000,             // Orientation is changed
     } interrupt_source_t;
 
     typedef enum // Interrupt Pins
@@ -257,7 +257,7 @@ public:
 
     void ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin);
 
-    void SetGenericInterrupt(
+    void ConfigureGenericInterrupt(
         interrupt_source_t interrupt, bool enable,
         interrupt_pin_t pin,
         generic_interrupt_reference_update_t reference,
@@ -268,7 +268,7 @@ public:
         bool enableX = true, bool enableY = true, bool enableZ = true,
         bool all_combined = false, bool ignoreSamplingRateFix = false);
 
-    void SetGenericInterrupt(
+    void ConfigureGenericInterrupt(
         interrupt_source_t interrupt, bool enable,
         interrupt_pin_t pin,
         generic_interrupt_reference_update_t reference,
@@ -282,25 +282,25 @@ public:
     void SetGenericInterruptReference(interrupt_source_t interrupt, uint8_t *values);
     void SetGenericInterruptReference(interrupt_source_t interrupt);
 
-    void SetStepDetectorCounter(bool enable, interrupt_pin_t pin); //TODO: Support for Sensor Position (wrist/none wrist)
+    void ConfigureStepDetectorCounter(bool enable, interrupt_pin_t pin); //TODO: Support for Sensor Position (wrist/none wrist)
     uint32_t GetTotalSteps();
     bool ResetStepCounter();
 
-    void SetActivityChangeInterrupt(bool enable,
-                                    interrupt_pin_t pin,
-                                    uint8_t threshold,
-                                    activity_change_observation_number_t observation_number,
-                                    interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
-                                    bool enableX = true, bool enableY = true, bool enableZ = true);
+    void ConfigureActivityChangeInterrupt(bool enable,
+                                          interrupt_pin_t pin,
+                                          uint8_t threshold,
+                                          activity_change_observation_number_t observation_number,
+                                          interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
+                                          bool enableX = true, bool enableY = true, bool enableZ = true);
 
-    void SetActivityChangeInterrupt(bool enable,
-                                    interrupt_pin_t pin,
-                                    float threshold,
-                                    activity_change_observation_number_t observation_number,
-                                    interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
-                                    bool enableX = true, bool enableY = true, bool enableZ = true);
+    void ConfigureActivityChangeInterrupt(bool enable,
+                                          interrupt_pin_t pin,
+                                          float threshold,
+                                          activity_change_observation_number_t observation_number,
+                                          interrupt_data_source_t data_source = interrupt_data_source_t::ACC_FILT_2,
+                                          bool enableX = true, bool enableY = true, bool enableZ = true);
 
-    void SetTapInterrupt(
+    void ConfigureTapInterrupt(
         bool enableSingleTap, bool enableDoubleTap,
         tap_axis_t axis,
         interrupt_pin_t pin,
@@ -309,7 +309,7 @@ public:
         tap_min_quiet_between_taps_t quiet_interval = tap_min_quiet_between_taps_t::MIN_QUIET_80_SAMPLES,
         tap_min_quiet_inside_double_taps_t double_taps_time = tap_min_quiet_inside_double_taps_t::MIN_QUIET_DT_4_SAMPLES);
 
-    void SetOrientationChangeInterrupt(
+    void ConfigureOrientationChangeInterrupt(
         bool enable,
         bool enableX, bool enableY, bool enableZ,
         interrupt_pin_t pin,
@@ -318,7 +318,7 @@ public:
         uint8_t threshold,
         uint8_t duration);
 
-    void SetOrientationChangeInterrupt(
+    void ConfigureOrientationChangeInterrupt(
         bool enable,
         bool enableX, bool enableY, bool enableZ,
         interrupt_pin_t pin,
