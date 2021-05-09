@@ -637,7 +637,49 @@ bool BMA400::HasInterrupt(interrupt_source_t source)
     return (bool)(GetInterrupts() & source);
 }
 
-void BMA400::ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin)
+/*!
+ *  @brief  Configuring electrical behavior of interrupt pins
+ *  @param  isLatched set true to enable latched (hold) interrupt. In latch mode interrupt stays active until reading the corresponding interrupt register is read.
+ *  @param  isINT1_active_hi set true to set interrupt pin 1 active mode to high level (pull up), otherwise it's pulled down when active
+ *  @param  isINT2_active_hi set true to set interrupt pin 1 active mode to high level (pull up), otherwise it's pulled down when active
+ *  @param  isINT1_open_drive set true to enable open drive mode for Interrupt Pin 1, otherwise it is using push pull electrical drive
+ *  @param  isINT2_open_drive set true to enable open drive mode for Interrupt Pin 1, otherwise it is using push pull electrical drive
+ */
+void BMA400::ConfigureInterruptPinSettings(
+    bool isLatched,
+    bool isINT1_active_hi,
+    bool isINT2_active_hi,
+    bool isINT1_open_drive,
+    bool isINT2_open_drive)
+{
+    if (isLatched)
+        set(BMA400_REG_INT_CONFIG_1, 7);
+    else
+        unset(BMA400_REG_INT_CONFIG_1, 7);
+
+    uint8_t val = 0;
+
+    if (isINT1_active_hi)
+        val |= 0x02;
+
+    if (isINT2_active_hi)
+        val |= 0x20;
+
+    if (isINT1_open_drive)
+        val |= 0x04;
+
+    if (isINT2_open_drive)
+        val |= 0x40;
+
+    write(BMA400_REG_INT_IO_CTRL, val);
+}
+
+/*!
+ *  @brief  Links/unlinks an interrupt source to/from interrupt pins
+ *  @param  interrupt Interrupt source (can be any interrupt source)
+ *  @param  pin target pin(s) should be linked to the interrupt source. can either, none or both
+ */
+void BMA400::LinkToInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin)
 {
     switch (interrupt)
     {
@@ -824,6 +866,9 @@ void BMA400::ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t
         break;
 
     case interrupt_source_t::ADV_ORIENTATION_CHANGE:
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE_X:
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE_Y:
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE_Z:
         switch (pin)
         {
 
@@ -850,6 +895,7 @@ void BMA400::ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t
         break;
 
     case interrupt_source_t::ADV_SET_DETECTOR_COUNTER:
+    case interrupt_source_t::ADV_SET_DETECTOR_COUNTER_DOUBLE_STEP:
         switch (pin)
         {
 
@@ -969,7 +1015,7 @@ void BMA400::ConfigureGenericInterrupt(
     }
 
     //# Wiring Interrupt to Interrupt pins
-    ConfigureInterruptPin(interrupt, pin);
+    LinkToInterruptPin(interrupt, pin);
 
     uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
     uint8_t val = 0;
@@ -1108,7 +1154,7 @@ void BMA400::ConfigureGenericInterrupt(
     }
 
     //# Wiring Interrupt to Interrupt pins
-    ConfigureInterruptPin(interrupt, pin);
+    LinkToInterruptPin(interrupt, pin);
 
     uint8_t _register = interrupt == interrupt_source_t::ADV_GENERIC_INTERRUPT_1 ? BMA400_REG_GEN_INT_1_CONFIG : BMA400_REG_GEN_INT_2_CONFIG;
     uint8_t val = 0;
@@ -1297,7 +1343,7 @@ void BMA400::ConfigureStepDetectorCounter(bool enable, interrupt_pin_t pin)
     if (enable)
     {
         set(BMA400_REG_INT_CONFIG_1, 0);
-        ConfigureInterruptPin(interrupt_source_t::ADV_SET_DETECTOR_COUNTER, pin);
+        LinkToInterruptPin(interrupt_source_t::ADV_SET_DETECTOR_COUNTER, pin);
     }
     else
         unset(BMA400_REG_INT_CONFIG_1, 0);
@@ -1350,7 +1396,7 @@ void BMA400::ConfigureActivityChangeInterrupt(bool enable,
     }
 
     //# Wiring Interrupt to Interrupt pins
-    ConfigureInterruptPin(interrupt_source_t::ADV_ACTIVITY_CHANGE, pin);
+    LinkToInterruptPin(interrupt_source_t::ADV_ACTIVITY_CHANGE, pin);
 
     set(BMA400_REG_INT_CONFIG_1, 4);
     write(BMA400_REG_ACT_CHNG_INT_CONFIG_0, threshold);
@@ -1420,7 +1466,7 @@ void BMA400::ConfigureActivityChangeInterrupt(bool enable,
     }
 
     //# Wiring Interrupt to Interrupt pins
-    ConfigureInterruptPin(interrupt_source_t::ADV_ACTIVITY_CHANGE, pin);
+    LinkToInterruptPin(interrupt_source_t::ADV_ACTIVITY_CHANGE, pin);
 
     set(BMA400_REG_INT_CONFIG_1, 4);
     threshold /= 8.0;
@@ -1497,7 +1543,7 @@ void BMA400::ConfigureTapInterrupt(
     }
 
     //# Wiring Interrupt to Interrupt pins
-    ConfigureInterruptPin(interrupt_source_t::ADV_SINGLE_TAP, pin);
+    LinkToInterruptPin(interrupt_source_t::ADV_SINGLE_TAP, pin);
 
     //# Force increasing the ODR to 200Hz
     output_data_rate_t rate = GetDataRate();
@@ -1620,7 +1666,7 @@ void BMA400::ConfigureOrientationChangeInterrupt(
     set(BMA400_REG_INT_CONFIG_0, 1);
 
     //# Wiring Interrupt to Interrupt pins
-    ConfigureInterruptPin(interrupt_source_t::ADV_ORIENTATION_CHANGE, pin);
+    LinkToInterruptPin(interrupt_source_t::ADV_ORIENTATION_CHANGE, pin);
 
     uint8_t val;
     switch (reference_update_mode)

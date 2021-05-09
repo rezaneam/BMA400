@@ -15,10 +15,11 @@
 #define BMA400_REG_ACC_CONFIG_1 0x1A
 #define BMA400_REG_ACC_CONFIG_2 0x1B
 #define BMA400_REG_INT_CONFIG_0 0x1F
+#define BMA400_REG_INT_CONFIG_1 0x20
 #define BMA400_REG_INT1_MAP 0x21
 #define BMA400_REG_INT2_MAP 0x22
 #define BMA400_REG_INT12_MAP 0x23
-#define BMA400_REG_INT_CONFIG_1 0x20
+#define BMA400_REG_INT_IO_CTRL 0x24
 #define BMA400_REG_AUTO_LOW_POW_0 0x2A
 #define BMA400_REG_AUTO_LOW_POW_1 0x2B
 #define BMA400_REG_ORIENT_CONFIG_0 0x35
@@ -255,7 +256,14 @@ public:
     interrupt_source_t GetInterrupts();
     bool HasInterrupt(interrupt_source_t source);
 
-    void ConfigureInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin);
+    void ConfigureInterruptPinSettings(
+        bool isLatched,
+        bool isINT1_active_hi,
+        bool isINT2_active_hi,
+        bool isINT1_open_drive,
+        bool isINT2_open_drive);
+
+    void LinkToInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pin);
 
     void ConfigureGenericInterrupt(
         interrupt_source_t interrupt, bool enable,
