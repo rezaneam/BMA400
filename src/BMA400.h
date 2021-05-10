@@ -52,7 +52,7 @@ public:
         LOW_POWER_LOW_NOISE,           // 1.35uA
         NORMAL_LOWER_POWER_WITH_NOISE, // 3.5uA
         NORMAL,                        // 5.8uA
-        NORMAL_LOW_NOISE,              //9.5uA
+        NORMAL_LOW_NOISE,              // 9.5uA
         NORMAL_LOWEST_NOISE,           // 14.5uA
     } power_mode_t;
 
@@ -94,24 +94,25 @@ public:
         RANGE_16G
     } acceleation_range_t;
 
-    typedef enum // All interrupt sources
+    typedef enum // All available interrupt sources
     {
-        BAS_DATA_READY = 0x0001,                       // Data Ready
-        BAS_FIFO_WATERMARK = 0x0002,                   // FIFO Watermark
-        BAS_FIFO_FULL = 0x0004,                        // FIFI Full
-        BAS_ENGINE_OVERRUN = 0x0008,                   // Engine Overrun - interrupt calculation couldn't be finished
-        BAS_WAKEUP = 0x0010,                           // Weke up
-        ADV_GENERIC_INTERRUPT_1 = 0x0020,              // Generic Interrupt for (in)activity detection
-        ADV_GENERIC_INTERRUPT_2 = 0x0040,              //  Generic Interrupt for (in)activity detection
-        ADV_SET_DETECTOR_COUNTER = 0x0080,             // Step Detector interrupt / Step Counter
-        ADV_SET_DETECTOR_COUNTER_DOUBLE_STEP = 0x0100, // Step Detector interrupt / Step Counter (most likely double step)
-        ADV_ACTIVITY_CHANGE = 0x0200,                  // Activity Change interrupt
-        ADV_SINGLE_TAP = 0x0400,                       // Single tap is detected
-        ADV_DOUBLE_TAP = 0x0800,                       // Double tap is detected
-        ADV_ORIENTATION_CHANGE = 0x1000,               // Orientation is changed
-        ADV_ORIENTATION_CHANGE_X = 0x2000,             // Orientation is changed
-        ADV_ORIENTATION_CHANGE_Y = 0x4000,             // Orientation is changed
-        ADV_ORIENTATION_CHANGE_Z = 0x8000,             // Orientation is changed
+        ALL_INTERRUPTS = 0x0000,                        // for disabling all interrupts purpose only
+        BAS_DATA_READY = 0x0001,                        // Data Ready
+        BAS_FIFO_WATERMARK = 0x0002,                    // FIFO Watermark
+        BAS_FIFO_FULL = 0x0004,                         // FIFI Full
+        BAS_ENGINE_OVERRUN = 0x0008,                    // Engine Overrun - interrupt calculation couldn't be finished
+        BAS_WAKEUP = 0x0010,                            // Weke up
+        ADV_GENERIC_INTERRUPT_1 = 0x0020,               // Generic Interrupt for (in)activity detection
+        ADV_GENERIC_INTERRUPT_2 = 0x0040,               //  Generic Interrupt for (in)activity detection
+        ADV_STEP_DETECTOR_COUNTER = 0x0080,             // Step Detector interrupt / Step Counter
+        ADV_STEP_DETECTOR_COUNTER_DOUBLE_STEP = 0x0100, // Step Detector interrupt / Step Counter (most likely double step)
+        ADV_ACTIVITY_CHANGE = 0x0200,                   // Activity Change interrupt
+        ADV_SINGLE_TAP = 0x0400,                        // Single tap is detected
+        ADV_DOUBLE_TAP = 0x0800,                        // Double tap is detected
+        ADV_ORIENTATION_CHANGE = 0x1000,                // Orientation is changed
+        ADV_ORIENTATION_CHANGE_X = 0x2000,              // Orientation is changed
+        ADV_ORIENTATION_CHANGE_Y = 0x4000,              // Orientation is changed
+        ADV_ORIENTATION_CHANGE_Z = 0x8000,              // Orientation is changed
     } interrupt_source_t;
 
     typedef enum // Interrupt Pins
@@ -256,6 +257,8 @@ public:
     //# Interrupts
     interrupt_source_t GetInterrupts();
     bool HasInterrupt(interrupt_source_t source);
+
+    void DisableInterrupts(interrupt_source_t source = interrupt_source_t::ALL_INTERRUPTS);
 
     void ConfigureBasicInterrupts(interrupt_source_t source, bool enable);
     void ConfigureBasicInterrupts(interrupt_source_t source, bool enable, interrupt_pin_t pin);

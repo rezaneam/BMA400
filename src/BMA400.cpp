@@ -627,10 +627,10 @@ BMA400::interrupt_source_t BMA400::GetInterrupts()
         result |= interrupt_source_t::BAS_DATA_READY;
 
     if (interrupts[1] & 0x01)
-        result |= interrupt_source_t::ADV_SET_DETECTOR_COUNTER;
+        result |= interrupt_source_t::ADV_STEP_DETECTOR_COUNTER;
 
     if (interrupts[1] & 0x02)
-        result |= interrupt_source_t::ADV_SET_DETECTOR_COUNTER_DOUBLE_STEP;
+        result |= interrupt_source_t::ADV_STEP_DETECTOR_COUNTER_DOUBLE_STEP;
 
     if (interrupts[1] & 0x04)
         result |= interrupt_source_t::ADV_SINGLE_TAP;
@@ -658,6 +658,69 @@ BMA400::interrupt_source_t BMA400::GetInterrupts()
 bool BMA400::HasInterrupt(interrupt_source_t source)
 {
     return (bool)(GetInterrupts() & source);
+}
+
+/*!
+ *  @brief  Disabling Interrupts
+ *  @param  source Interrupt source. use ALL_INTERRUPTS to disable all interrupts (very usefull if don't know which interrupts are active)
+ *  @param  enable true to enable interrupt
+ */
+void BMA400::DisableInterrupts(interrupt_source_t source)
+{
+    switch (source)
+    {
+    case interrupt_source_t::ALL_INTERRUPTS:
+        write(BMA400_REG_INT_CONFIG_0, 0);
+        write(BMA400_REG_INT_CONFIG_1, 0);
+        break;
+
+    case interrupt_source_t::BAS_DATA_READY:
+        unset(BMA400_REG_INT_CONFIG_0, 7);
+        break;
+
+    case interrupt_source_t::BAS_FIFO_WATERMARK:
+        unset(BMA400_REG_INT_CONFIG_0, 6);
+        break;
+
+    case interrupt_source_t::BAS_FIFO_FULL:
+        unset(BMA400_REG_INT_CONFIG_0, 5);
+        break;
+
+    case interrupt_source_t::ADV_GENERIC_INTERRUPT_2:
+        unset(BMA400_REG_INT_CONFIG_0, 4);
+        break;
+
+    case interrupt_source_t::ADV_GENERIC_INTERRUPT_1:
+        unset(BMA400_REG_INT_CONFIG_0, 3);
+        break;
+
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE:
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE_X:
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE_Y:
+    case interrupt_source_t::ADV_ORIENTATION_CHANGE_Z:
+        unset(BMA400_REG_INT_CONFIG_0, 2);
+        break;
+
+    case interrupt_source_t::ADV_ACTIVITY_CHANGE:
+        unset(BMA400_REG_INT_CONFIG_1, 4);
+        break;
+
+    case interrupt_source_t::ADV_DOUBLE_TAP:
+        unset(BMA400_REG_INT_CONFIG_0, 3);
+        break;
+
+    case interrupt_source_t::ADV_SINGLE_TAP:
+        unset(BMA400_REG_INT_CONFIG_0, 2);
+        break;
+
+    case interrupt_source_t::ADV_STEP_DETECTOR_COUNTER:
+    case interrupt_source_t::ADV_STEP_DETECTOR_COUNTER_DOUBLE_STEP:
+        unset(BMA400_REG_INT_CONFIG_0, 0);
+        break;
+
+    default:
+        break;
+    }
 }
 
 /*!
@@ -965,8 +1028,8 @@ void BMA400::LinkToInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pi
         }
         break;
 
-    case interrupt_source_t::ADV_SET_DETECTOR_COUNTER:
-    case interrupt_source_t::ADV_SET_DETECTOR_COUNTER_DOUBLE_STEP:
+    case interrupt_source_t::ADV_STEP_DETECTOR_COUNTER:
+    case interrupt_source_t::ADV_STEP_DETECTOR_COUNTER_DOUBLE_STEP:
         switch (pin)
         {
 
@@ -1043,6 +1106,9 @@ void BMA400::LinkToInterruptPin(interrupt_source_t interrupt, interrupt_pin_t pi
             set(BMA400_REG_INT12_MAP, 7);
             break;
         }
+        break;
+
+    default:
         break;
     }
 }
@@ -1417,7 +1483,7 @@ void BMA400::ConfigureStepDetectorCounter(bool enable, interrupt_pin_t pin)
     if (enable)
     {
         set(BMA400_REG_INT_CONFIG_1, 0);
-        LinkToInterruptPin(interrupt_source_t::ADV_SET_DETECTOR_COUNTER, pin);
+        LinkToInterruptPin(interrupt_source_t::ADV_STEP_DETECTOR_COUNTER, pin);
     }
     else
         unset(BMA400_REG_INT_CONFIG_1, 0);
