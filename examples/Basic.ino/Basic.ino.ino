@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <BMA400.h>
 #include <Wire.h>
 

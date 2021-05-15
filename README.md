@@ -24,3 +24,11 @@
 - Reading the interrupt register. `GetInterrupts`
 - Electrical Configuration of interrupt pins. `ConfigureInterruptPinSettings`
 - Configuring the basic interrupts `ConfigureBasicInterrupts`
+
+## Examples in ardunio
+
+- [Basic](examples/basic/basic.ino) automatically finding address and using default I2C interface
+- [Basic with Custom Interface](examples/BasicCustomInterface/BasicCustomInterface.ino) automatically finding address and using user defined I2C interface
+- [Motion Detection Interrupt](examples/MotionDetectionInterrupt/MotionDetectionInterrupt.ino)
+- [Step Detection/Counter Interrupt](examples/StepDetectionInterrupt/StepDetectionInterrupt.ino)
+- [Tap Detection Interrupt](examples/TapDetectionInterrupt/TapDetectionInterrupt.ino) for single and double taps
