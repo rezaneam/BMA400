@@ -27,7 +27,7 @@
 
 ## Examples in ardunio
 
-- [Basic](examples/basic/basic.ino) automatically finding address and using default I2C interface
+- [Basic](examples/Basic/Basic.ino) automatically finding address and using default I2C interface
 - [Basic with Custom Interface](examples/BasicCustomInterface/BasicCustomInterface.ino) automatically finding address and using user defined I2C interface
 - [Motion Detection Interrupt](examples/MotionDetectionInterrupt/MotionDetectionInterrupt.ino)
 - [Step Detection/Counter Interrupt](examples/StepDetectionInterrupt/StepDetectionInterrupt.ino)
