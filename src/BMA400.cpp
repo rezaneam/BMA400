@@ -1,3 +1,25 @@
+/*!
+ * @file BMA400.cpp
+ *
+ *  @mainpage Bosch BMA400 ultra-low power triaxial accelerometer
+ *
+ *  @section Information
+ *
+ *  This is a library for the Bosch BMA400 ultra-low power triaxial accelerometer
+ *
+ *  Find more detail on the sensor on https://www.bosch-sensortec.com/products/motion-sensors/accelerometers/bma400/
+ *
+ *  This library is only supporting I2C interface not SPI.
+ *
+ *  @section author Author
+ *
+ *  MReza Naeemabadi
+ *
+ *  @section license License
+ *
+ *  MIT license, all text above must be included in any redistribution
+ */
+
 #include <BMA400.h>
 
 /*!
